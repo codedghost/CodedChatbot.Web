@@ -12,15 +12,15 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Local",
-        "DOTNET_CLI_HOME": "/tmp" 
+        "ASPNETCORE_ENVIRONMENT": "Local"
       }
     },
     "CoreCodedChatbot.Web": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Local"
+        "ASPNETCORE_ENVIRONMENT": "Local",
+        "DOTNET_CLI_HOME": "/tmp"
       },
       "applicationUrl": "http://localhost:49421/"
     }
