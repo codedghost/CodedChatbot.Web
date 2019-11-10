@@ -53,10 +53,6 @@ namespace CoreCodedChatbot.Web
 
             services.AddChatbotWebAuth(configService, secretService);
 
-            services.AddMvc();
-
-            services.AddSignalR();
-
             //api.V5.Chat.GetChatRoomsByChannelAsync(config.ChannelId, config.ChatbotAccessToken)
             //    .ContinueWith(
             //        rooms =>
@@ -78,9 +74,11 @@ namespace CoreCodedChatbot.Web
                 .AddSignalRServices()
                 .AddApiClientServices();
 
-            services.AddRouting();
+            services.AddControllersWithViews();
+            services.AddRazorPages();
+            services.AddSignalR();
 
-            services.AddMvc();
+            services.AddRouting();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -90,7 +88,6 @@ namespace CoreCodedChatbot.Web
             {
                 context.Database.Migrate();
             }
-
 
             if (env.IsDevelopment())
             {
@@ -105,12 +102,10 @@ namespace CoreCodedChatbot.Web
 
             app.UseStaticFiles();
 
-            var heartbeatService = serviceProvider.GetService<SignalRHeartbeatService>();
-            var chatterService = serviceProvider.GetService<IChatterService>();
+            app.UseRouting();
 
             app.UseAuthentication();
-
-            app.UseRouting();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
@@ -118,6 +113,9 @@ namespace CoreCodedChatbot.Web
                 endpoints.MapRazorPages();
                 endpoints.MapHub<SongList>("/SongList");
             });
+
+            var heartbeatService = serviceProvider.GetService<ISignalRHeartbeatService>();
+            var chatterService = serviceProvider.GetService<IChatterService>();
         }
     }
 }
