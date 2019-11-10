@@ -4,6 +4,8 @@ using System.Text;
 using CoreCodedChatbot.ApiClient;
 using CoreCodedChatbot.Config;
 using CoreCodedChatbot.Database;
+using CoreCodedChatbot.Database.Context;
+using CoreCodedChatbot.Database.Context.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 using Microsoft.AspNetCore.Builder;
@@ -14,6 +16,7 @@ using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.Interfaces;
 using CoreCodedChatbot.Web.Services;
 using CoreCodedChatbot.Web.SignalRHubs;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 
 namespace CoreCodedChatbot.Web
@@ -83,6 +86,12 @@ namespace CoreCodedChatbot.Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
+            using (var context = (ChatbotContext)serviceProvider.GetService<IChatbotContextFactory>().Create())
+            {
+                context.Database.Migrate();
+            }
+
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

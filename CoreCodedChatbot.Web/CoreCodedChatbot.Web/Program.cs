@@ -14,11 +14,6 @@ namespace CoreCodedChatbot.Web
     {
         public static void Main(string[] args)
         {
-            using (var context = new ChatbotContext())
-            {
-                context.Database.Migrate();
-            }
-
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("hosting.json", optional: true)

@@ -1,10 +1,6 @@
 ﻿using System.Threading.Tasks;
 using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
-using CoreCodedChatbot.ApiContract.RequestModels.StreamStatus;
 using CoreCodedChatbot.Config;
-using CoreCodedChatbot.Library.Interfaces.Services;
-using CoreCodedChatbot.Library.Models.ApiRequest.StreamStatus;
-using CoreCodedChatbot.Library.Models.Data;
 using CoreCodedChatbot.Library.Models.View.ComponentViewModels;
 using Microsoft.AspNetCore.Mvc;
 using GetStreamStatusRequest = CoreCodedChatbot.ApiContract.RequestModels.StreamStatus.GetStreamStatusRequest;

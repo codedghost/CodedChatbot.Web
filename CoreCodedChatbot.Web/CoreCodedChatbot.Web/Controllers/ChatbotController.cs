@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using AspNet.Security.OAuth.Twitch;
+using CoreCodedChatbot.ApiContract.Enums.Playlist;
 using CoreCodedChatbot.Library.Interfaces.Services;
 using CoreCodedChatbot.Library.Models.Data;
 using CoreCodedChatbot.Library.Models.Enums;
