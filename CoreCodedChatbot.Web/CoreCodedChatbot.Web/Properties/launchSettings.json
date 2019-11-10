@@ -19,7 +19,7 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Local",
+        "ASPNETCORE_ENVIRONMENT": "Release",
         "DOTNET_CLI_HOME": "/tmp"
       },
       "applicationUrl": "http://localhost:49421/"
