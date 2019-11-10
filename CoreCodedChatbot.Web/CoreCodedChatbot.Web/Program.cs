@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 using CoreCodedChatbot.Database.Context;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 
 
 namespace CoreCodedChatbot.Web
@@ -19,13 +20,17 @@ namespace CoreCodedChatbot.Web
                 .AddJsonFile("hosting.json", optional: true)
                 .Build();
 
-            BuildWebHost(args, config).Run();
+            BuildHost(args, config).Run();
         }
 
-        public static IWebHost BuildWebHost(string[] args, IConfigurationRoot config) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseConfiguration(config)
-                .UseStartup<Startup>()
+        public static IHost BuildHost(string[] args, IConfigurationRoot config) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(builder =>
+                {
+                    builder.UseUrls(config["server.urls"]);
+                    builder.PreferHostingUrls(true);
+                    builder.UseStartup<Startup>();
+                })
                 .Build();
     }
 }
