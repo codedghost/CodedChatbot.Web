@@ -2,13 +2,16 @@
 using System.IO;
 using System.Linq;
 using AspNet.Security.OAuth.Twitch;
+using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
 using CoreCodedChatbot.ApiContract.Enums.Playlist;
+using CoreCodedChatbot.ApiContract.RequestModels.Playlist;
 using CoreCodedChatbot.Library.Interfaces.Services;
 using CoreCodedChatbot.Library.Models.Data;
 using CoreCodedChatbot.Library.Models.Enums;
 using CoreCodedChatbot.Library.Models.SongLibrary;
 using CoreCodedChatbot.Library.Models.View;
 using CoreCodedChatbot.Web.Interfaces;
+using CoreCodedChatbot.Web.ViewModels.AjaxRequestModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -20,14 +23,17 @@ namespace CoreCodedChatbot.Web.Controllers
         private readonly IVipService vipService;
 
         private readonly IChatterService chatterService;
+        private readonly IPlaylistApiClient _playlistApiClient;
 
         public ChatbotController(IPlaylistService playlistService, IVipService vipService,
-            IChatterService chatterService)
+            IChatterService chatterService,
+            IPlaylistApiClient playlistApiClient)
         {
             this.playlistService = playlistService;
             this.vipService = vipService;
 
             this.chatterService = chatterService;
+            _playlistApiClient = playlistApiClient;
         }
 
         public ActionResult Index()
@@ -148,12 +154,12 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult RenderRemoveSongModal([FromBody] int songId)
+        public IActionResult RenderRemoveSongModal([FromBody] string songId)
         {
             CheckAndSetUserModStatus();
             if (!User.Identity.IsAuthenticated) return BadRequest();
 
-            var requestToDelete = playlistService.GetRequestById(songId);
+            var requestToDelete = playlistService.GetRequestById(int.Parse(songId));
             
             try
             {
@@ -166,11 +172,11 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult RenderRemoveCurrentSongModal([FromBody] int songId)
+        public IActionResult RenderRemoveCurrentSongModal([FromBody] string songId)
         {
             if (!CheckAndSetUserModStatus()) return BadRequest();
 
-            var requestToDelete = playlistService.GetRequestById(songId);
+            var requestToDelete = playlistService.GetRequestById(int.Parse(songId));
 
             try
             {
@@ -229,7 +235,7 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult RenderEditRequestModal([FromBody] int songId)
+        public IActionResult RenderEditRequestModal([FromBody] string songId)
         {
             CheckAndSetUserModStatus();
             if (!User.Identity.IsAuthenticated) return BadRequest();
@@ -237,7 +243,7 @@ namespace CoreCodedChatbot.Web.Controllers
             try
             {
                 var requestViewModel =
-                    playlistService.GetEditRequestSongViewModel(User.Identity.Name.ToLower(), songId,
+                    playlistService.GetEditRequestSongViewModel(User.Identity.Name.ToLower(), int.Parse(songId),
                         ViewBag.UserIsMod ?? false);
 
                 return PartialView("Partials/List/RequestModal", requestViewModel);
@@ -249,14 +255,14 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult RenderPromoteSongModal([FromBody] int songId)
+        public IActionResult RenderPromoteSongModal([FromBody] string songId)
         {
             CheckAndSetUserModStatus();
             if (!User.Identity.IsAuthenticated) return BadRequest();
 
             try
             {
-                var requestToPromote = playlistService.GetRequestById(songId);
+                var requestToPromote = playlistService.GetRequestById(int.Parse(songId));
 
                 return PartialView("Partials/List/PromoteSongModal", requestToPromote);
             }
@@ -267,17 +273,17 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult RemoveSong([FromBody] int songId)
+        public IActionResult RemoveSong([FromBody] string songId)
         {
             if (User.Identity.IsAuthenticated)
             {
                 var chattersModel = chatterService.GetCurrentChatters();
-                var request = playlistService.GetRequestById(songId);
+                var request = playlistService.GetRequestById(int.Parse(songId));
 
                 if ((chattersModel?.IsUserMod(User.Identity.Name) ?? false) ||
                     string.Equals(User.Identity.Name, request.songRequester))
                 {
-                    if (playlistService.ArchiveRequestById(songId))
+                    if (playlistService.ArchiveRequestById(int.Parse(songId)))
                         return Ok();
                 }
             }
@@ -286,7 +292,7 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult RemoveCurrentSong([FromBody] int songId)
+        public IActionResult RemoveCurrentSong([FromBody] string songId)
         {
             if (User.Identity.IsAuthenticated)
             {
@@ -296,7 +302,7 @@ namespace CoreCodedChatbot.Web.Controllers
                 {
                     try
                     {
-                        playlistService.ArchiveCurrentRequest(songId);
+                        playlistService.ArchiveCurrentRequest(int.Parse(songId));
                         return Ok();
                     }
                     catch (Exception)
@@ -311,11 +317,21 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult RequestSong([FromBody] RequestSongViewModel requestData)
+        public IActionResult RequestSong([FromBody] RequestSongModel requestData)
         {
             if (User.Identity.IsAuthenticated)
             {
-                var requestResult = playlistService.AddWebRequest(requestData, User.Identity.Name);
+                var requestModel = new RequestSongViewModel
+                {
+                    SongRequestId = int.Parse(requestData.SongRequestId),
+                    Title = requestData.Title,
+                    Artist = requestData.Artist,
+                    SelectedInstrument = requestData.SelectedInstrument,
+                    IsVip = requestData.IsVip,
+                    IsSuperVip = requestData.IsSuperVip
+                };
+
+                var requestResult = playlistService.AddWebRequest(requestModel, User.Identity.Name);
 
                 switch (requestResult)
                 {
@@ -356,14 +372,24 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult EditSong([FromBody] RequestSongViewModel requestData)
+        public IActionResult EditSong([FromBody] RequestSongModel requestData)
         {
             if (User.Identity.IsAuthenticated)
             {
                 var chatters = chatterService.GetCurrentChatters();
 
+                var requestModel = new RequestSongViewModel
+                {
+                    SongRequestId = int.Parse(requestData.SongRequestId),
+                    Title = requestData.Title,
+                    Artist = requestData.Artist,
+                    SelectedInstrument = requestData.SelectedInstrument,
+                    IsVip = requestData.IsVip,
+                    IsSuperVip = requestData.IsSuperVip
+                };
+
                 var editRequestResult =
-                    playlistService.EditWebRequest(requestData, User.Identity.Name.ToLower(),
+                    playlistService.EditWebRequest(requestModel, User.Identity.Name.ToLower(),
                         chatters?.IsUserMod(User.Identity.Name.ToLower()) ?? false);
 
                 switch (editRequestResult)
@@ -397,11 +423,11 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult PromoteRequest([FromBody] int songId)
+        public IActionResult PromoteRequest([FromBody] string songId)
         {
             if (User.Identity.IsAuthenticated)
             {
-                var promoteRequestResult = playlistService.PromoteWebRequest(songId, User.Identity.Name.ToLower());
+                var promoteRequestResult = playlistService.PromoteWebRequest(int.Parse(songId), User.Identity.Name.ToLower());
 
                 switch (promoteRequestResult)
                 {
@@ -433,13 +459,13 @@ namespace CoreCodedChatbot.Web.Controllers
             return BadRequest(new {Message = "It looks like you're not logged in, log in and try again"});
         }
 
-        public IActionResult RenderAddToDriveModal([FromBody] int songId)
+        public IActionResult RenderAddToDriveModal([FromBody] string songId)
         {
             if (!CheckAndSetUserModStatus()) return BadRequest();
 
             try
             {
-                var requestToAddToDrive = playlistService.GetRequestById(songId);
+                var requestToAddToDrive = playlistService.GetRequestById(int.Parse(songId));
 
                 return PartialView("Partials/List/AddToDriveModal", requestToAddToDrive);
             }
@@ -449,13 +475,13 @@ namespace CoreCodedChatbot.Web.Controllers
             }
         }
 
-        public IActionResult AddSongToDrive([FromBody] int songId)
+        public IActionResult AddSongToDrive([FromBody] string songId)
         {
             if (!CheckAndSetUserModStatus()) return BadRequest();
 
             try
             {
-                playlistService.AddSongToDrive(songId);
+                playlistService.AddSongToDrive(int.Parse(songId));
                 return Ok();
             }
             catch (Exception e)

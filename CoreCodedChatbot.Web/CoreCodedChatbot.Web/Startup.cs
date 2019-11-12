@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 
 using CoreCodedChatbot.Library;
+using CoreCodedChatbot.Printful;
 using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.Interfaces;
 using CoreCodedChatbot.Web.Services;
@@ -72,7 +73,8 @@ namespace CoreCodedChatbot.Web
                 .AddDbContextFactory()
                 .AddLibraryServices()
                 .AddSignalRServices()
-                .AddApiClientServices();
+                .AddApiClientServices()
+                .AddChatbotPrintfulService();
 
             services.AddControllersWithViews();
             services.AddRazorPages();

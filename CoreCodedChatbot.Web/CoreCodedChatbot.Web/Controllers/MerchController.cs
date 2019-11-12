@@ -18,7 +18,6 @@ namespace CoreCodedChatbot.Web.Controllers
             _printfulClient = printfulClientFactory.Get();
         }
 
-        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var products = await _printfulClient.GetAllProducts();
