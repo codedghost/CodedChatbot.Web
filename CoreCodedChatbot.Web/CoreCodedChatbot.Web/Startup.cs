@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 
 using CoreCodedChatbot.Library;
+using CoreCodedChatbot.Logging;
 using CoreCodedChatbot.Printful;
 using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.Interfaces;
@@ -52,7 +53,9 @@ namespace CoreCodedChatbot.Web
             var provider = services.BuildServiceProvider();
             var secretService = provider.GetService<ISecretService>();
 
-            services.AddChatbotWebAuth(configService, secretService);
+            services
+                .AddChatbotNLog(secretService)
+                .AddChatbotWebAuth(configService, secretService);
 
             //api.V5.Chat.GetChatRoomsByChannelAsync(config.ChannelId, config.ChatbotAccessToken)
             //    .ContinueWith(
@@ -99,6 +102,8 @@ namespace CoreCodedChatbot.Web
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
+            app.UseMiddleware(typeof(ErrorHandlingMiddleware));
 
             //app.UseIpRateLimiting();
 

@@ -83,8 +83,6 @@
 
         var isNewRequest = $("#isNewRequest").val() === "True" ? true : false;
 
-        debugger;
-
         if (isNewRequest) {
             $.ajax({
                 url: '@Url.Action("RequestSong", "Chatbot")',
@@ -95,7 +93,6 @@
                     $("#requestModal").modal('hide');
                 },
                 error: function(err) {
-                    debugger;
                     $("#validationMessage").text(err.responseJSON.message);
                     $("#validationMessage").show();
                 }

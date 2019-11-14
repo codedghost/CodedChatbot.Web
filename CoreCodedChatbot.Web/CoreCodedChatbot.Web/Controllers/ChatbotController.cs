@@ -4,7 +4,6 @@ using System.Linq;
 using AspNet.Security.OAuth.Twitch;
 using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
 using CoreCodedChatbot.ApiContract.Enums.Playlist;
-using CoreCodedChatbot.ApiContract.RequestModels.Playlist;
 using CoreCodedChatbot.Library.Interfaces.Services;
 using CoreCodedChatbot.Library.Models.Data;
 using CoreCodedChatbot.Library.Models.Enums;
@@ -13,6 +12,7 @@ using CoreCodedChatbot.Library.Models.View;
 using CoreCodedChatbot.Web.Interfaces;
 using CoreCodedChatbot.Web.ViewModels.AjaxRequestModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace CoreCodedChatbot.Web.Controllers
@@ -24,16 +24,21 @@ namespace CoreCodedChatbot.Web.Controllers
 
         private readonly IChatterService chatterService;
         private readonly IPlaylistApiClient _playlistApiClient;
+        private readonly ILogger<ChatbotController> _logger;
 
-        public ChatbotController(IPlaylistService playlistService, IVipService vipService,
+        public ChatbotController(
+            IPlaylistService playlistService, 
+            IVipService vipService,
             IChatterService chatterService,
-            IPlaylistApiClient playlistApiClient)
+            IPlaylistApiClient playlistApiClient,
+            ILogger<ChatbotController> logger)
         {
             this.playlistService = playlistService;
             this.vipService = vipService;
 
             this.chatterService = chatterService;
             _playlistApiClient = playlistApiClient;
+            _logger = logger;
         }
 
         public ActionResult Index()
@@ -486,7 +491,7 @@ namespace CoreCodedChatbot.Web.Controllers
             }
             catch (Exception e)
             {
-                Console.Error.Write($"{e} - {e.InnerException}");
+                _logger.LogError(e, $"Error in {HttpContext.Request.RouteValues["action"]}");
                 return Json(new {Success = false, Message = "Encountered an error"});
             }
         }
@@ -501,7 +506,7 @@ namespace CoreCodedChatbot.Web.Controllers
             }
             catch (Exception e)
             {
-                Console.Write($"{e} - {e.InnerException}");
+                _logger.LogError(e, $"Error in {HttpContext.Request.RouteValues["action"]}");
                 return BadRequest();
             }
         }
@@ -517,7 +522,7 @@ namespace CoreCodedChatbot.Web.Controllers
             }
             catch (Exception e)
             {
-                Console.Write($"{e} - {e.InnerException}");
+                _logger.LogError(e, $"Error in {HttpContext.Request.RouteValues["action"]}");
                 return BadRequest();
             }
         }
@@ -532,7 +537,7 @@ namespace CoreCodedChatbot.Web.Controllers
             }
             catch (Exception e)
             {
-                Console.Write($"{e} - {e.InnerException}");
+                _logger.LogError(e, $"Error in {HttpContext.Request.RouteValues["action"]}");
                 return BadRequest();
             }
         }
@@ -547,7 +552,7 @@ namespace CoreCodedChatbot.Web.Controllers
             }
             catch (Exception e)
             {
-                Console.Write($"{e} - {e.InnerException}");
+                _logger.LogError(e, $"Error in {HttpContext.Request.RouteValues["action"]}");
                 return BadRequest();
             }
         }
@@ -567,7 +572,7 @@ namespace CoreCodedChatbot.Web.Controllers
             }
             catch (Exception e)
             {
-                Console.Write($"{e} - {e.InnerException}");
+                _logger.LogError(e, $"Error in {HttpContext.Request.RouteValues["action"]}");
                 return BadRequest();
             }
         }
@@ -587,7 +592,7 @@ namespace CoreCodedChatbot.Web.Controllers
             }
             catch (Exception e)
             {
-                Console.Write($"{e} - {e.InnerException}");
+                _logger.LogError(e, $"Error in {HttpContext.Request.RouteValues["action"]}");
                 return BadRequest();
             }
         }
