@@ -5,16 +5,22 @@ using CoreCodedChatbot.Library.Models.Data;
 using CoreCodedChatbot.Library.Models.SignalR;
 using CoreCodedChatbot.Secrets;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 
 namespace CoreCodedChatbot.Web.SignalRHubs
 {
     public class SongList : Hub
     {
         private readonly ISecretService _secretService;
+        private readonly ILogger<SongList> _logger;
 
-        public SongList(ISecretService secretService)
+        public SongList(
+            ISecretService secretService, 
+            ILogger<SongList> logger
+        )
         {
             _secretService = secretService;
+            _logger = logger;
         }
 
         public async Task SendAll(SongListHubModel data)
@@ -56,7 +62,7 @@ namespace CoreCodedChatbot.Web.SignalRHubs
 
         public override Task OnConnectedAsync()
         {
-            Console.WriteLine("Client {0} Connected", Context.ConnectionId);
+            _logger.LogInformation($"Client {Context.ConnectionId} Connected");
             return base.OnConnectedAsync();
         }
     }

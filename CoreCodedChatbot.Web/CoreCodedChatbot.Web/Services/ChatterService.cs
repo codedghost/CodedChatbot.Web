@@ -6,6 +6,7 @@ using CoreCodedChatbot.Config;
 using CoreCodedChatbot.Library.Interfaces.Services;
 using CoreCodedChatbot.Library.Models.Data;
 using CoreCodedChatbot.Web.Interfaces;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace CoreCodedChatbot.Web.Services
@@ -13,13 +14,18 @@ namespace CoreCodedChatbot.Web.Services
     public class ChatterService : IChatterService
     {
         private readonly IConfigService _configService;
+        private readonly ILogger<ChatterService> _logger;
         private ChatViewersModel Chatters { get; set; }
 
         private Timer chatterTimer { get; set; }
 
-        public ChatterService(IConfigService configService)
+        public ChatterService(
+            IConfigService configService,
+            ILogger<ChatterService> logger
+        )
         {
             _configService = configService;
+            _logger = logger;
             chatterTimer = new Timer((x) => { UpdateChatters(); }, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
         }
 
@@ -46,7 +52,7 @@ namespace CoreCodedChatbot.Web.Services
             }
             catch (Exception e)
             {
-                Console.Error.WriteLine($"Could not access Twitch TMI resource. Exception:\n{e}\n{e.InnerException}");
+                _logger.LogError(e, $"Could not access Twitch TMI resource.");
                 errorCounter++;
 
                 if (errorCounter > 5)
