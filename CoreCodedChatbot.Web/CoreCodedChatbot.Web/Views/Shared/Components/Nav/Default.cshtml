@@ -1,4 +1,4 @@
-﻿@model CoreCodedChatbot.Library.Models.View.ComponentViewModels.NavigationViewModel
+﻿@model CoreCodedChatbot.Web.ViewModels.NavigationViewModel.NavigationViewModel
 
 <div class="navbar navbar-expand-lg bg-dark">
     <div class="container">
@@ -36,11 +36,11 @@
             <span class="navbar-text">
                 @if (User.Identity.IsAuthenticated)
                 {
-                    <button class="btn btn-primary" onclick="window.location.href = '@Url.Action("Logout", "Login")'">Logout</button>
+                    <button class="btn btn-primary" onclick="window.location.href = '@Url.Action("Logout", "Login", new { redirectUrl = Model.LoginLogoutRedirect})'">Logout</button>
                 }
                 else
                 {
-                    <button class="btn btn-primary" onclick="window.location.href = '@Url.Action("Index", "Login")'">Login with Twitch</button>
+                    <button class="btn btn-primary" onclick="window.location.href = '@Url.Action("Index", "Login", new { redirectUrl = Model.LoginLogoutRedirect})'">Login with Twitch</button>
                 }
             </span>
         </div>

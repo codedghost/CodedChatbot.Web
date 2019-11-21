@@ -12,15 +12,15 @@ namespace CoreCodedChatbot.Web.Controllers
         {
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string redirectUrl = "/")
         {
-            return Challenge(new AuthenticationProperties() { RedirectUri = "/" });
+            return Challenge(new AuthenticationProperties() { RedirectUri = redirectUrl });
         }
 
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> Logout(string redirectUrl = "/")
         {
             await HttpContext.SignOutAsync();
-            return LocalRedirect("/");
+            return Redirect(redirectUrl);
         }
     }
 }
