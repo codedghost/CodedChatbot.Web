@@ -103,7 +103,7 @@ namespace CoreCodedChatbot.Web
                 app.UseExceptionHandler("/Home/Error");
             }
 
-            app.UseMiddleware(typeof(ErrorHandlingMiddleware));
+            //app.UseMiddleware(typeof(ErrorHandlingMiddleware));
 
             //app.UseIpRateLimiting();
 
