@@ -1,43 +1,42 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using AspNet.Security.OAuth.Twitch;
 using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
 using CoreCodedChatbot.ApiContract.Enums.Playlist;
-using CoreCodedChatbot.Library.Interfaces.Services;
-using CoreCodedChatbot.Library.Models.Data;
+using CoreCodedChatbot.ApiContract.RequestModels.Playlist;
+using CoreCodedChatbot.ApiContract.RequestModels.Vip;
+using CoreCodedChatbot.ApiContract.ResponseModels.Playlist.ChildModels;
 using CoreCodedChatbot.Library.Models.Enums;
 using CoreCodedChatbot.Library.Models.SongLibrary;
 using CoreCodedChatbot.Library.Models.View;
 using CoreCodedChatbot.Web.Interfaces;
 using CoreCodedChatbot.Web.ViewModels.AjaxRequestModels;
+using CoreCodedChatbot.Web.ViewModels.Playlist;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using RequestSongViewModel = CoreCodedChatbot.Web.ViewModels.Playlist.RequestSongViewModel;
 
 namespace CoreCodedChatbot.Web.Controllers
 {
     public class ChatbotController : Controller
     {
-        private readonly IPlaylistService playlistService;
-        private readonly IVipService vipService;
-
         private readonly IChatterService chatterService;
         private readonly IPlaylistApiClient _playlistApiClient;
+        private readonly IVipApiClient _vipApiClient;
         private readonly ILogger<ChatbotController> _logger;
 
         public ChatbotController(
-            IPlaylistService playlistService, 
-            IVipService vipService,
             IChatterService chatterService,
             IPlaylistApiClient playlistApiClient,
-            ILogger<ChatbotController> logger)
+            IVipApiClient vipApiClient,
+                ILogger<ChatbotController> logger)
         {
-            this.playlistService = playlistService;
-            this.vipService = vipService;
-
             this.chatterService = chatterService;
             _playlistApiClient = playlistApiClient;
+            _vipApiClient = vipApiClient;
             _logger = logger;
         }
 
@@ -67,17 +66,28 @@ namespace CoreCodedChatbot.Web.Controllers
                 ViewBag.Username = twitchUser?.Username ?? string.Empty;
             }
 
-            var playlistModel = playlistService.GetAllSongs(twitchUser);
-            playlistModel.RegularList =
-                playlistModel.RegularList.Where(r => r.songRequestId != playlistModel.CurrentSong.songRequestId)
-                    .ToArray();
-            playlistModel.VipList =
-                playlistModel.VipList.Where(r => r.songRequestId != playlistModel.CurrentSong.songRequestId)
-                    .ToArray();
+            var allCurrentSongRequests = _playlistApiClient.GetAllCurrentSongRequests()?.Result;
 
-            ViewBag.UserHasVip = User.Identity.IsAuthenticated && vipService.HasVip(User.Identity.Name.ToLower());
+            var playlistModel = new PlaylistViewModel();
 
-            ViewBag.IsPlaylistOpen = playlistService.GetPlaylistState() == PlaylistState.Open;
+            if (allCurrentSongRequests != null)
+                playlistModel = new PlaylistViewModel
+                {
+                    CurrentSong = allCurrentSongRequests.CurrentSong,
+                    RegularList = allCurrentSongRequests.RegularList
+                        .Where(r => r.songRequestId != allCurrentSongRequests.CurrentSong.songRequestId).ToArray(),
+                    VipList = allCurrentSongRequests.VipList
+                        .Where(r => r.songRequestId != allCurrentSongRequests.CurrentSong.songRequestId).ToArray(),
+                    TwitchUser = twitchUser
+                };
+
+            ViewBag.UserHasVip = User.Identity.IsAuthenticated && _vipApiClient.DoesUserHaveVip(
+                                     new DoesUserHaveVipRequestModel
+                                     {
+                                         Username = User.Identity.Name.ToLower()
+                                     }).Result.HasVip;
+
+            ViewBag.IsPlaylistOpen = _playlistApiClient.IsPlaylistOpen().Result == PlaylistState.Open;
 
             return View(playlistModel);
         }
@@ -113,9 +123,13 @@ namespace CoreCodedChatbot.Web.Controllers
                     ViewBag.Username = twitchUser?.Username ?? string.Empty;
                 }
 
-                ViewBag.UserHasVip = User.Identity.IsAuthenticated && vipService.HasVip(User.Identity.Name.ToLower());
+                ViewBag.UserHasVip = User.Identity.IsAuthenticated && _vipApiClient.DoesUserHaveVip(
+                                         new DoesUserHaveVipRequestModel
+                                         {
+                                             Username = User.Identity.Name.ToLower()
+                                         }).Result.HasVip;
 
-                ViewBag.IsPlaylistOpen = playlistService.GetPlaylistState() == PlaylistState.Open;
+                ViewBag.IsPlaylistOpen = _playlistApiClient.IsPlaylistOpen().Result == PlaylistState.Open;
 
                 return PartialView("Partials/List/RegularList", data);
             }
@@ -147,9 +161,13 @@ namespace CoreCodedChatbot.Web.Controllers
                     ViewBag.Username = twitchUser?.Username ?? string.Empty;
                 }
 
-                ViewBag.UserHasVip = User.Identity.IsAuthenticated && vipService.HasVip(User.Identity.Name.ToLower());
+                ViewBag.UserHasVip = User.Identity.IsAuthenticated && _vipApiClient.DoesUserHaveVip(
+                                         new DoesUserHaveVipRequestModel
+                                         {
+                                             Username = User.Identity.Name.ToLower()
+                                         }).Result.HasVip;
 
-                ViewBag.IsPlaylistOpen = playlistService.GetPlaylistState() == PlaylistState.Open;
+                ViewBag.IsPlaylistOpen = _playlistApiClient.IsPlaylistOpen().Result == PlaylistState.Open;
                 return PartialView("Partials/List/VipList", data);
             }
             catch (Exception)
@@ -164,7 +182,7 @@ namespace CoreCodedChatbot.Web.Controllers
             CheckAndSetUserModStatus();
             if (!User.Identity.IsAuthenticated) return BadRequest();
 
-            var requestToDelete = playlistService.GetRequestById(int.Parse(songId));
+            var requestToDelete = _playlistApiClient.GetRequestById(int.Parse(songId)).Result.Request;
             
             try
             {
@@ -181,7 +199,7 @@ namespace CoreCodedChatbot.Web.Controllers
         {
             if (!CheckAndSetUserModStatus()) return BadRequest();
 
-            var requestToDelete = playlistService.GetRequestById(int.Parse(songId));
+            var requestToDelete = _playlistApiClient.GetRequestById(int.Parse(songId)).Result.Request;
 
             try
             {
@@ -213,9 +231,13 @@ namespace CoreCodedChatbot.Web.Controllers
                     ViewBag.UserIsMod = twitchUser?.IsMod ?? false;
                 }
 
-                ViewBag.UserHasVip = User.Identity.IsAuthenticated && vipService.HasVip(User.Identity.Name.ToLower());
+                ViewBag.UserHasVip = User.Identity.IsAuthenticated && _vipApiClient.DoesUserHaveVip(
+                                         new DoesUserHaveVipRequestModel
+                                         {
+                                             Username = User.Identity.Name.ToLower()
+                                         }).Result.HasVip;
 
-                ViewBag.IsPlaylistOpen = playlistService.GetPlaylistState() == PlaylistState.Open;
+                ViewBag.IsPlaylistOpen = _playlistApiClient.IsPlaylistOpen().Result == PlaylistState.Open;
                 return PartialView("Partials/List/CurrentSong", data);
             }
             catch (Exception)
@@ -229,7 +251,19 @@ namespace CoreCodedChatbot.Web.Controllers
         {
             try
             {
-                var requestViewModel = playlistService.GetNewRequestSongViewModel(User.Identity.Name.ToLower());
+                var shouldShowVip = _vipApiClient.DoesUserHaveVip(
+                    new DoesUserHaveVipRequestModel
+                    {
+                        Username = User.Identity.Name.ToLower()
+                    }).Result.HasVip;
+
+                var shouldShowSuperVip = _vipApiClient.DoesUserHaveSuperVip(new DoesUserHaveSuperVipRequestModel
+                                         {
+                                             Username = User.Identity.Name.ToLower()
+                                         }).Result.HasSuperVip &&
+                                         _vipApiClient.IsSuperVipInQueue().Result.IsInQueue;
+
+                var requestViewModel = RequestSongViewModel.GetNewRequestViewModel(shouldShowVip, shouldShowSuperVip);
 
                 return PartialView("Partials/List/RequestModal", requestViewModel);
             }
@@ -247,9 +281,10 @@ namespace CoreCodedChatbot.Web.Controllers
 
             try
             {
+                var requestToEdit = _playlistApiClient.GetRequestById(int.Parse(songId)).Result.Request;
+
                 var requestViewModel =
-                    playlistService.GetEditRequestSongViewModel(User.Identity.Name.ToLower(), int.Parse(songId),
-                        ViewBag.UserIsMod ?? false);
+                    RequestSongViewModel.GetEditRequestSongViewModel(requestToEdit);
 
                 return PartialView("Partials/List/RequestModal", requestViewModel);
             }
@@ -267,7 +302,7 @@ namespace CoreCodedChatbot.Web.Controllers
 
             try
             {
-                var requestToPromote = playlistService.GetRequestById(int.Parse(songId));
+                var requestToPromote = _playlistApiClient.GetRequestById(int.Parse(songId)).Result.Request;
 
                 return PartialView("Partials/List/PromoteSongModal", requestToPromote);
             }
@@ -283,12 +318,12 @@ namespace CoreCodedChatbot.Web.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 var chattersModel = chatterService.GetCurrentChatters();
-                var request = playlistService.GetRequestById(int.Parse(songId));
+                var request = _playlistApiClient.GetRequestById(int.Parse(songId)).Result.Request;
 
                 if ((chattersModel?.IsUserMod(User.Identity.Name) ?? false) ||
                     string.Equals(User.Identity.Name, request.songRequester))
                 {
-                    if (playlistService.ArchiveRequestById(int.Parse(songId)))
+                    if (_playlistApiClient.ArchiveRequestById(int.Parse(songId)).Result)
                         return Ok();
                 }
             }
@@ -307,7 +342,7 @@ namespace CoreCodedChatbot.Web.Controllers
                 {
                     try
                     {
-                        playlistService.ArchiveCurrentRequest(int.Parse(songId));
+                        _playlistApiClient.ArchiveCurrentRequest(int.Parse(songId)).Wait();
                         return Ok();
                     }
                     catch (Exception)
@@ -326,17 +361,20 @@ namespace CoreCodedChatbot.Web.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                var requestModel = new RequestSongViewModel
+                var requestModel = new AddWebSongRequest
                 {
                     SongRequestId = int.Parse(requestData.SongRequestId),
                     Title = requestData.Title,
                     Artist = requestData.Artist,
                     SelectedInstrument = requestData.SelectedInstrument,
                     IsVip = requestData.IsVip,
-                    IsSuperVip = requestData.IsSuperVip
+                    IsSuperVip = requestData.IsSuperVip,
+                    Username = User.Identity.Name
                 };
 
-                var requestResult = playlistService.AddWebRequest(requestModel, User.Identity.Name);
+                var requestResult = _playlistApiClient.AddWebRequest(requestModel).Result.Result;
+
+                var maxRegularRequests = _playlistApiClient.GetMaxUserRequests().Result.MaxRequests;
 
                 switch (requestResult)
                 {
@@ -346,7 +384,7 @@ namespace CoreCodedChatbot.Web.Controllers
                         return BadRequest(new
                         {
                             Message =
-                                $"You cannot have more than {playlistService.GetMaxUserRequests()} regular request{(playlistService.GetMaxUserRequests() > 1 ? "s" : "")}"
+                                $"You cannot have more than {maxRegularRequests} regular request{(maxRegularRequests > 1 ? "s" : "")}"
                         });
                     case AddRequestResult.PlaylistClosed:
                         return BadRequest(new
@@ -383,19 +421,20 @@ namespace CoreCodedChatbot.Web.Controllers
             {
                 var chatters = chatterService.GetCurrentChatters();
 
-                var requestModel = new RequestSongViewModel
+                var requestModel = new EditWebRequestRequestModel
                 {
                     SongRequestId = int.Parse(requestData.SongRequestId),
                     Title = requestData.Title,
                     Artist = requestData.Artist,
                     SelectedInstrument = requestData.SelectedInstrument,
                     IsVip = requestData.IsVip,
-                    IsSuperVip = requestData.IsSuperVip
+                    IsSuperVip = requestData.IsSuperVip,
+                    Username = User.Identity.Name.ToLower(),
+                    IsMod = chatters?.IsUserMod(User.Identity.Name.ToLower()) ?? false
                 };
 
                 var editRequestResult =
-                    playlistService.EditWebRequest(requestModel, User.Identity.Name.ToLower(),
-                        chatters?.IsUserMod(User.Identity.Name.ToLower()) ?? false);
+                    _playlistApiClient.EditWebRequest(requestModel).Result.EditResult;
 
                 switch (editRequestResult)
                 {
@@ -432,7 +471,12 @@ namespace CoreCodedChatbot.Web.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                var promoteRequestResult = playlistService.PromoteWebRequest(int.Parse(songId), User.Identity.Name.ToLower());
+                var promoteRequestResult = _playlistApiClient.PromoteWebRequest(
+                    new PromoteWebRequestRequestModel
+                    {
+                        SongRequestId = int.Parse(songId),
+                        Username = User.Identity.Name.ToLower()
+                    }).Result.Result;
 
                 switch (promoteRequestResult)
                 {
@@ -470,7 +514,7 @@ namespace CoreCodedChatbot.Web.Controllers
 
             try
             {
-                var requestToAddToDrive = playlistService.GetRequestById(int.Parse(songId));
+                var requestToAddToDrive = _playlistApiClient.GetRequestById(int.Parse(songId)).Result.Request;
 
                 return PartialView("Partials/List/AddToDriveModal", requestToAddToDrive);
             }
@@ -486,7 +530,10 @@ namespace CoreCodedChatbot.Web.Controllers
 
             try
             {
-                playlistService.AddSongToDrive(int.Parse(songId));
+                _playlistApiClient.AddRequestToDrive(new AddSongToDriveRequest
+                {
+                    SongRequestId = int.Parse(songId)
+                });
                 return Ok();
             }
             catch (Exception e)
@@ -517,14 +564,15 @@ namespace CoreCodedChatbot.Web.Controllers
 
             try
             {
-                playlistService.ClearRockRequests();
-                return Ok();
+                if (_playlistApiClient.ClearRequests().Result)
+                    return Ok();
             }
             catch (Exception e)
             {
                 _logger.LogError(e, $"Error in {HttpContext.Request.RouteValues["action"]}");
-                return BadRequest();
             }
+
+            return BadRequest();
         }
 
         public IActionResult RenderOpenPlaylistModal()
@@ -563,7 +611,7 @@ namespace CoreCodedChatbot.Web.Controllers
 
             try
             {
-                if (playlistService.OpenPlaylistWeb())
+                if (_playlistApiClient.OpenPlaylist().Result)
                 {
                     return Ok();
                 }
@@ -583,7 +631,7 @@ namespace CoreCodedChatbot.Web.Controllers
 
             try
             {
-                if (playlistService.VeryClosePlaylistWeb())
+                if (_playlistApiClient.VeryClosePlaylist().Result)
                 {
                     return Ok();
                 }
