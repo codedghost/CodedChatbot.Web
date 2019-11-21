@@ -30,7 +30,7 @@
         }
         else
         {
-            @Html.ActionLink("Login", "Index", "Login")
+            @Html.ActionLink("Login", "Index", "Login", new { redirectUrl = "/Chatbot/List" })
             <text> with Twitch to access more features!</text>
         }
 </div>
