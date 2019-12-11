@@ -332,7 +332,7 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult RemoveCurrentSong([FromBody] string songId)
+        public async Task<IActionResult> RemoveCurrentSong([FromBody] string songId)
         {
             if (User.Identity.IsAuthenticated)
             {
@@ -342,7 +342,7 @@ namespace CoreCodedChatbot.Web.Controllers
                 {
                     try
                     {
-                        _playlistApiClient.ArchiveCurrentRequest(int.Parse(songId)).Wait();
+                        await _playlistApiClient.ArchiveCurrentRequest(int.Parse(songId));
                         return Ok();
                     }
                     catch (Exception)
