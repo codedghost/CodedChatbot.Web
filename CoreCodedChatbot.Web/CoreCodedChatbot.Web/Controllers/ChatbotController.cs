@@ -251,21 +251,31 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult RenderRequestModal()
+        public async Task<IActionResult> RenderRequestModal()
         {
             try
             {
-                var shouldShowVip = _vipApiClient.DoesUserHaveVip(
+                var hasVipRequest = await _vipApiClient.DoesUserHaveVip(
                     new DoesUserHaveVipRequestModel
                     {
                         Username = User.Identity.Name.ToLower()
-                    }).Result.HasVip;
+                    });
 
-                var shouldShowSuperVip = _vipApiClient.DoesUserHaveSuperVip(new DoesUserHaveSuperVipRequestModel
-                                         {
-                                             Username = User.Identity.Name.ToLower()
-                                         }).Result.HasSuperVip &&
-                                         _vipApiClient.IsSuperVipInQueue().Result.IsInQueue;
+                var hasSuperVipRequest = await _vipApiClient.DoesUserHaveSuperVip(new DoesUserHaveSuperVipRequestModel
+                {
+                    Username = User.Identity.Name.ToLower()
+                });
+
+                var shouldShowVip = hasVipRequest.HasVip;
+
+                var shouldShowSuperVip = false;
+
+                if (hasSuperVipRequest.HasSuperVip)
+                {
+                    var shouldShowSuperVipRequest = await _vipApiClient.IsSuperVipInQueue();
+                        
+                    shouldShowSuperVip = !shouldShowSuperVipRequest.IsInQueue;
+                }
 
                 var requestViewModel = RequestSongViewModel.GetNewRequestViewModel(shouldShowVip, shouldShowSuperVip);
 
