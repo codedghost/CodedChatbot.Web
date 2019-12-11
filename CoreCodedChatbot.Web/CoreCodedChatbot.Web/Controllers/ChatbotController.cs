@@ -212,7 +212,7 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult RenderCurrentSong([FromBody] PlaylistItem data)
+        public async Task<IActionResult> RenderCurrentSong([FromBody] PlaylistItem data)
         {
             try
             {
@@ -229,15 +229,19 @@ namespace CoreCodedChatbot.Web.Controllers
                             IsMod = chattersModel?.IsUserMod(username) ?? false
                         };
                     ViewBag.UserIsMod = twitchUser?.IsMod ?? false;
+
+                    var apiResult = await _vipApiClient.DoesUserHaveVip(
+                        new DoesUserHaveVipRequestModel
+                        {
+                            Username = User.Identity.Name.ToLower()
+                        });
+
+                    ViewBag.UserHasVip = apiResult.HasVip;
                 }
 
-                ViewBag.UserHasVip = User.Identity.IsAuthenticated && _vipApiClient.DoesUserHaveVip(
-                                         new DoesUserHaveVipRequestModel
-                                         {
-                                             Username = User.Identity.Name.ToLower()
-                                         }).Result.HasVip;
+                var playlistCheck = await _playlistApiClient.IsPlaylistOpen();
 
-                ViewBag.IsPlaylistOpen = _playlistApiClient.IsPlaylistOpen().Result == PlaylistState.Open;
+                ViewBag.IsPlaylistOpen = playlistCheck == PlaylistState.Open;
                 return PartialView("Partials/List/CurrentSong", data);
             }
             catch (Exception)
