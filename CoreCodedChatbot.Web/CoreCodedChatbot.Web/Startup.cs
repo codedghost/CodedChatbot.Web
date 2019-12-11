@@ -122,7 +122,9 @@ namespace CoreCodedChatbot.Web
             });
 
             var heartbeatService = serviceProvider.GetService<ISignalRHeartbeatService>();
+            heartbeatService.NotifyClients();
             var chatterService = serviceProvider.GetService<IChatterService>();
+            chatterService.UpdateChatters();
         }
     }
 }
