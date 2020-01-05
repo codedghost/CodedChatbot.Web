@@ -1,5 +1,5 @@
 ﻿using CoreCodedChatbot.ApiContract.ResponseModels.Playlist.ChildModels;
-using CoreCodedChatbot.Library.Models.View;
+using CoreCodedChatbot.Web.ViewModels.Shared;
 
 namespace CoreCodedChatbot.Web.ViewModels.Playlist
 {

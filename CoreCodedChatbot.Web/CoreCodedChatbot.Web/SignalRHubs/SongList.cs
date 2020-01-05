@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using CoreCodedChatbot.ApiContract.SignalRHubModels;
 using CoreCodedChatbot.Secrets;
 using Microsoft.AspNetCore.SignalR;

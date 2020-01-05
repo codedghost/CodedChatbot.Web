@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Text;
 using CoreCodedChatbot.ApiClient;
 using CoreCodedChatbot.Config;
 using CoreCodedChatbot.Database;
@@ -16,7 +14,6 @@ using CoreCodedChatbot.Logging;
 using CoreCodedChatbot.Printful;
 using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.Interfaces;
-using CoreCodedChatbot.Web.Services;
 using CoreCodedChatbot.Web.SignalRHubs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
