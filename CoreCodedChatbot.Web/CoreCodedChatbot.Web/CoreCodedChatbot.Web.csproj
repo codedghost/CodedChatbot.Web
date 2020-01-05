@@ -22,4 +22,8 @@
     <PackageReference Include="PayPalCheckoutSdk" Version="1.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ViewModels\Development\" />
+  </ItemGroup>
+
 </Project>
