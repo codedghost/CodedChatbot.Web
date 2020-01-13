@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using CoreCodedChatbot.Printful.Models.ApiResponse;
-using CoreCodedChatbot.Printful.Models.Data;
 
 namespace CoreCodedChatbot.Web.ViewModels.Merch
 {
