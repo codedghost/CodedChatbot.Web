@@ -1,4 +1,4 @@
-﻿@model CoreCodedChatbot.Library.Models.View.LoggedInTwitchUser;
+﻿@model CoreCodedChatbot.Web.ViewModels.Shared.LoggedInTwitchUser;
 
 
 <br />
@@ -30,7 +30,7 @@
         }
         else
         {
-            @Html.ActionLink("Login", "Index", "Login")
+            @Html.ActionLink("Login", "Index", "Login", new { redirectUrl = "/Chatbot/List" })
             <text> with Twitch to access more features!</text>
         }
 </div>

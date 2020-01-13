@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CoreCodedChatbot.Printful.Interfaces.ExternalClients;
 using CoreCodedChatbot.Printful.Interfaces.Factories;
@@ -18,7 +17,6 @@ namespace CoreCodedChatbot.Web.Controllers
             _printfulClient = printfulClientFactory.Get();
         }
 
-        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var products = await _printfulClient.GetAllProducts();

@@ -1,4 +1,4 @@
-﻿@model CoreCodedChatbot.Library.Models.View.RequestSongViewModel
+﻿@model CoreCodedChatbot.Web.ViewModels.Playlist.RequestSongViewModel
 
 <div class="modal fade" id="requestModal" tabindex="-1" role="dialog" aria-labelledby="requestModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -77,14 +77,11 @@
             Title: $("#requestTitle").val(),
             Artist: $("#requestArtist").val(),
             SelectedInstrument: $("#requestInstrument").val(),
-            Instruments: null,
             IsVip: $("#requestIsVip").prop('checked'),
             IsSuperVip: $("#requestIsSuperVip").prop('checked')
         });
 
         var isNewRequest = $("#isNewRequest").val() === "True" ? true : false;
-
-        debugger;
 
         if (isNewRequest) {
             $.ajax({
@@ -96,7 +93,6 @@
                     $("#requestModal").modal('hide');
                 },
                 error: function(err) {
-                    debugger;
                     $("#validationMessage").text(err.responseJSON.message);
                     $("#validationMessage").show();
                 }

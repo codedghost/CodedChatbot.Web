@@ -1,15 +1,11 @@
-﻿using System.Text;
-using AspNet.Security.OAuth.Twitch;
+﻿using AspNet.Security.OAuth.Twitch;
 using CoreCodedChatbot.Config;
-using CoreCodedChatbot.Library.Interfaces.Services;
 using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.Interfaces;
 using CoreCodedChatbot.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using TwitchLib.Api;
 using TwitchLib.Client;
 using TwitchLib.Client.Models;
@@ -36,21 +32,15 @@ namespace CoreCodedChatbot.Web
                     options.ClientId = secretService.GetSecret<string>("TwitchWebAppClientId");
                     options.ClientSecret = secretService.GetSecret<string>("TwitchWebAppClientSecret");
                     options.Scope.Add(configService.Get<string>("TwitchWebAppScopes"));
-                    options.CallbackPath = PathString.FromUriComponent(configService.Get<string>("TwitchWebAppCallbackPath"));
-                })
-                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey =
-                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretService.GetSecret<string>("ApiSecretSymmetricKey"))),
-                        ValidateIssuer = true,
-                        ValidIssuer = secretService.GetSecret<string>("ApiValidIssuer"),
-                        ValidateAudience = true,
-                        ValidAudience = secretService.GetSecret<string>("ApiValidAudience")
-                    };
+                    options.CallbackPath =
+                        PathString.FromUriComponent(configService.Get<string>("TwitchWebAppCallbackPath"));
                 });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(TwitchAuthenticationDefaults.AuthenticationScheme,
+                    builder => { builder.RequireAuthenticatedUser().Build(); });
+            });
 
             return services;
         }
@@ -79,7 +69,7 @@ namespace CoreCodedChatbot.Web
 
         public static IServiceCollection AddSignalRServices(this IServiceCollection services)
         {
-            services.AddSingleton(typeof(SignalRHeartbeatService), typeof(SignalRHeartbeatService));
+            services.AddSingleton<ISignalRHeartbeatService, SignalRHeartbeatService>();
 
             return services;
         }

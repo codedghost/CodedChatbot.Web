@@ -1,10 +1,8 @@
 {
   "iisSettings": {
     "windowsAuthentication": false,
-    "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:49420/",
-      "sslPort": 0
+      "applicationUrl": "http://localhost:49420/"
     }
   },
   "profiles": {
@@ -13,13 +11,15 @@
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Local"
-      }
+      },
+      "applicationUrl": "http://localhost:49420/"
     },
     "CoreCodedChatbot.Web": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Local"
+        "ASPNETCORE_ENVIRONMENT": "Local",
+        "DOTNET_CLI_HOME": "/tmp"
       },
       "applicationUrl": "http://localhost:49421/"
     }

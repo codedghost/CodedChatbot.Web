@@ -1,0 +1,51 @@
+﻿@using CoreCodedChatbot.ApiContract.ResponseModels.DevOps.ChildModels
+@model CoreCodedChatbot.Web.ViewModels.Development.RaiseBugViewModel
+
+@{
+    ViewBag.Title = "Raise a Bug";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/BugReport.css"/>
+}
+
+<div class="jumbotron">
+    <h2>Bug Report Form</h2>
+</div>
+
+@{
+    Html.BeginForm("SubmitBug", "Development");
+}
+
+<div class="form-group">
+    @Html.LabelFor(m => m.Title)
+    @Html.EditorFor(m => m.Title, additionalViewData: new {@class = "form-control"})
+    @Html.ValidationMessageFor(m => m.Title)
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.ReproSteps)
+    @Html.TextAreaFor(m => m.ReproSteps, htmlAttributes: new {@class = "form-control"})
+    @Html.ValidationMessageFor(m => m.ReproSteps)
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.AcceptanceCriteria)
+    @Html.TextAreaFor(m => m.AcceptanceCriteria, htmlAttributes: new {@class = "form-control"})
+    @Html.ValidationMessageFor(m => m.AcceptanceCriteria)
+</div>
+<div class="row">
+    <p>* denotes mandatory fields</p>
+</div>
+<br/>
+@if (Model.FailedToRaise)
+{
+    <div class="row">
+        <p>Failed to raise this bug, try again in a moment.</p>
+    </div>
+}
+<div class="row">
+    <button class="btn btn-primary" type="submit">Submit</button>
+</div>
+@{
+    Html.EndForm();
+}

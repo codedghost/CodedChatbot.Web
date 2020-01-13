@@ -1,11 +1,7 @@
 ﻿using System.Threading.Tasks;
 using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
-using CoreCodedChatbot.ApiContract.RequestModels.StreamStatus;
 using CoreCodedChatbot.Config;
-using CoreCodedChatbot.Library.Interfaces.Services;
-using CoreCodedChatbot.Library.Models.ApiRequest.StreamStatus;
-using CoreCodedChatbot.Library.Models.Data;
-using CoreCodedChatbot.Library.Models.View.ComponentViewModels;
+using CoreCodedChatbot.Web.ViewModels.NavigationViewModel;
 using Microsoft.AspNetCore.Mvc;
 using GetStreamStatusRequest = CoreCodedChatbot.ApiContract.RequestModels.StreamStatus.GetStreamStatusRequest;
 
@@ -13,10 +9,10 @@ namespace CoreCodedChatbot.Web.Components
 {
     public class NavViewComponent : ViewComponent
     {
-        private readonly IStreamStatusClient _streamStatusClient;
+        private readonly IStreamStatusApiClient _streamStatusClient;
         private readonly IConfigService _configService;
 
-        public NavViewComponent(IStreamStatusClient streamStatusClient, IConfigService configService)
+        public NavViewComponent(IStreamStatusApiClient streamStatusClient, IConfigService configService)
         {
             _streamStatusClient = streamStatusClient;
             _configService = configService;
@@ -31,10 +27,15 @@ namespace CoreCodedChatbot.Web.Components
                 {
                     BroadcasterUsername = streamerChannel
                 });
+
+            // Get the current page so we can redirect the user back here after login/logout
+            // TODO: Consider if the page we are returning to will attempt to auto login or anything similar
+            var currentPage = HttpContext.Request.Path;
             
             return View(new NavigationViewModel
             {
-                IsBroadcasterOnline = streamStatus.IsOnline
+                IsBroadcasterOnline = streamStatus.IsOnline,
+                LoginLogoutRedirect = currentPage
             });
         }
     }
