@@ -1,7 +1,42 @@
-﻿
+﻿@using CoreCodedChatbot.ApiContract.ResponseModels.DevOps.ChildModels
+@model CoreCodedChatbot.Web.ViewModels.Development.CurrentIterationViewModel
+
 @{
-    ViewData["Title"] = "CurrentIteration";
+    ViewBag.Title = "Current Iteration";
+    Layout = "_Layout";
 }
 
-<h1>CurrentIteration</h1>
+<div class="jumbotron">
+    <div class="row">
+        <h2>You can see the Website and Chatbot development schedule for the current month below</h2>
+    </div>
+    <div class="row">
+        <h4>If you have found a bug to raise please visit: @Html.ActionLink("Raise a Bug", "RaiseBug", "Development")</h4>
+    </div>
+</div>
 
+    <div class="col-12">
+        @if (!Model.WorkItems.Any())
+        {
+            <p>Couldn't retrieve this iteration's work items. Maybe it hasn't been configured yet?</p>
+        }
+        @foreach (var workItem in Model.WorkItems)
+        {
+            <row>
+                @if (@workItem is DevOpsBug)
+                {
+                    <p>BUG - @workItem.Title - @workItem.State - Hours Left: @workItem.RemainingWork</p>
+                }
+                @if (@workItem is DevOpsProductBacklogItem)
+                {
+                    <p>Product Backlog Item - @workItem.Title - @workItem.State - Hours Left: @workItem.RemainingWork</p>
+                }
+                <h4>Tasks:</h4>
+                @foreach (var task in workItem.Tasks)
+                {
+                    <p>@task.Title - @task.State - @task.RemainingWork</p>
+                    @Html.Raw(task.Description)
+                }
+            </row>
+        }
+    </div>

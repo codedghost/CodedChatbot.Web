@@ -29,6 +29,16 @@
                 <li class="nav-item">
                     @Html.ActionLink("Merch", "Index", "Merch", new {}, new {@class = "nav-link"})
                 </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="devDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="False">
+                        Development
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="devDropdown">
+                        @Html.ActionLink("Current Month", "Index", "Development", new { }, new { @class = "dropdown-item" })
+                        @Html.ActionLink("Raise a Bug", "RaiseBug", "Development", new { }, new { @class = "dropdown-item" })
+                        @Html.ActionLink("Backlog", "Backlog", "Development", new { }, new { @class = "dropdown-item" })
+                    </div>
+                </li>
                 <li class="nav-item">
                     @Html.ActionLink("About", "Index", "About", new {}, new {@class = "nav-link"})
                 </li>

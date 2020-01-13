@@ -54,18 +54,6 @@ namespace CoreCodedChatbot.Web
                 .AddChatbotNLog(secretService)
                 .AddChatbotWebAuth(configService, secretService);
 
-            //api.V5.Chat.GetChatRoomsByChannelAsync(config.ChannelId, config.ChatbotAccessToken)
-            //    .ContinueWith(
-            //        rooms =>
-            //        {
-            //            if (!rooms.IsCompletedSuccessfully) return;
-            //            var devRoomId = rooms.Result.Rooms.SingleOrDefault(r => r.Name == "dev")?.Id;
-            //            if (!string.IsNullOrWhiteSpace(devRoomId))
-            //            {
-            //                client.JoinRoom(config.ChannelId, devRoomId);
-            //            }
-            //        });
-
             //services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             //services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
@@ -91,8 +79,9 @@ namespace CoreCodedChatbot.Web
                 context.Database.Migrate();
             }
 
-            if (env.IsDevelopment())
+            if (env.IsDevelopment() || string.Equals(env.EnvironmentName, "Local", StringComparison.InvariantCultureIgnoreCase))
             {
+                app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
             }
             else
