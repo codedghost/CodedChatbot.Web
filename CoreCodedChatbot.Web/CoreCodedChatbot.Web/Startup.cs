@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Text;
 using CoreCodedChatbot.ApiClient;
 using CoreCodedChatbot.Config;
 using CoreCodedChatbot.Database;
@@ -16,7 +14,6 @@ using CoreCodedChatbot.Logging;
 using CoreCodedChatbot.Printful;
 using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.Interfaces;
-using CoreCodedChatbot.Web.Services;
 using CoreCodedChatbot.Web.SignalRHubs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -57,18 +54,6 @@ namespace CoreCodedChatbot.Web
                 .AddChatbotNLog(secretService)
                 .AddChatbotWebAuth(configService, secretService);
 
-            //api.V5.Chat.GetChatRoomsByChannelAsync(config.ChannelId, config.ChatbotAccessToken)
-            //    .ContinueWith(
-            //        rooms =>
-            //        {
-            //            if (!rooms.IsCompletedSuccessfully) return;
-            //            var devRoomId = rooms.Result.Rooms.SingleOrDefault(r => r.Name == "dev")?.Id;
-            //            if (!string.IsNullOrWhiteSpace(devRoomId))
-            //            {
-            //                client.JoinRoom(config.ChannelId, devRoomId);
-            //            }
-            //        });
-
             //services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             //services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
@@ -94,8 +79,9 @@ namespace CoreCodedChatbot.Web
                 context.Database.Migrate();
             }
 
-            if (env.IsDevelopment())
+            if (env.IsDevelopment() || string.Equals(env.EnvironmentName, "Local", StringComparison.InvariantCultureIgnoreCase))
             {
+                app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
             }
             else
@@ -122,7 +108,9 @@ namespace CoreCodedChatbot.Web
             });
 
             var heartbeatService = serviceProvider.GetService<ISignalRHeartbeatService>();
+            heartbeatService.NotifyClients();
             var chatterService = serviceProvider.GetService<IChatterService>();
+            chatterService.UpdateChatters();
         }
     }
 }
