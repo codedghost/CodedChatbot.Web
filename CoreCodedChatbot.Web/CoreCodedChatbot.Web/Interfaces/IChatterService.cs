@@ -1,4 +1,4 @@
-﻿using CoreCodedChatbot.Library.Models.Data;
+﻿using CoreCodedChatbot.Web.ViewModels.Playlist;
 
 namespace CoreCodedChatbot.Web.Interfaces
 {
