@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.Twitch" Version="3.0.0" />
-    <PackageReference Include="CoreCodedChatbot.ApiClient" Version="1.0.464" />
+    <PackageReference Include="CoreCodedChatbot.ApiClient" Version="1.0.475" />
     <PackageReference Include="CoreCodedChatbot.Config" Version="1.0.345" />
     <PackageReference Include="CoreCodedChatbot.Library" Version="1.0.439" />
     <PackageReference Include="CoreCodedChatbot.Logging" Version="1.0.401" />
