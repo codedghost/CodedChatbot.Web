@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 
-using CoreCodedChatbot.Library;
 using CoreCodedChatbot.Logging;
 using CoreCodedChatbot.Printful;
 using CoreCodedChatbot.Secrets;
@@ -59,7 +58,6 @@ namespace CoreCodedChatbot.Web
 
             services.AddTwitchServices(configService, secretService)
                 .AddDbContextFactory()
-                .AddLibraryServices()
                 .AddSignalRServices()
                 .AddApiClientServices()
                 .AddChatbotPrintfulService();

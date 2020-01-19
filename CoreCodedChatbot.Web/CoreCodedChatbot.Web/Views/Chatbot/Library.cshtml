@@ -1,4 +1,4 @@
-﻿@model CoreCodedChatbot.Library.Models.SongLibrary.SongLibraryRecords
+﻿@model CoreCodedChatbot.Web.ViewModels.SongLibrary.SongLibraryRecords
 
 @{
     ViewBag.Title = "Current Playlist";
@@ -13,11 +13,11 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var record in Model.dgvSongsMaster)
+        @foreach (var record in Model.Songs)
         {
             <tr>
-                <td>@record.colTitle</td>
-                <td>@record.colArtist</td>
+                <td>@record.Title</td>
+                <td>@record.Artist</td>
             </tr>
         }
     </tbody>
