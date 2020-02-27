@@ -98,6 +98,12 @@ namespace CoreCodedChatbot.Web
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseCors(builder => builder.WithOrigins(new[]
+                    {"https://codedghost.com", "https://www.codedghost.com", "https://api.codedghost.com"})
+                .AllowAnyHeader()
+                .WithMethods("GET", "POST")
+                .AllowCredentials());
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
