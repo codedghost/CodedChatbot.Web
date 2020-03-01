@@ -5,7 +5,10 @@
         <b>Song Requests</b>
     </div>
 </div>
-@for (var i = 0; i < Model.Length; i++)
+@if (Model != null)
 {
-    Html.RenderPartial("Partials/List/PlaylistItem", Model[i]);
+    @for (var i = 0; i < Model.Length; i++)
+    {
+        Html.RenderPartial("Partials/List/PlaylistItem", Model[i]);
+    }
 }
