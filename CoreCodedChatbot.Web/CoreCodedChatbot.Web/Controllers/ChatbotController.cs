@@ -86,7 +86,10 @@ namespace CoreCodedChatbot.Web.Controllers
                                          Username = User.Identity.Name.ToLower()
                                      })?.Result?.HasVip ?? false);
 
-            ViewBag.IsPlaylistOpen = _playlistApiClient.IsPlaylistOpen().Result == PlaylistState.Open;
+            var playlistTask = _playlistApiClient.IsPlaylistOpen();
+
+            ViewBag.IsPlaylistOpen =
+                playlistTask.IsCompletedSuccessfully && playlistTask.Result == PlaylistState.Open;
 
             return View(playlistModel);
         }
