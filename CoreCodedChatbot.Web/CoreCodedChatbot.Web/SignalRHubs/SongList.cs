@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using CoreCodedChatbot.ApiContract.SignalRHubModels;
 using CoreCodedChatbot.Secrets;
 using Microsoft.AspNetCore.SignalR;
@@ -21,11 +20,15 @@ namespace CoreCodedChatbot.Web.SignalRHubs
             _logger = logger;
         }
 
+        public override Task OnConnectedAsync()
+        {
+            _logger.LogInformation($"Client {Context.ConnectionId} Connected");
+            return base.OnConnectedAsync();
+        }
+
         public async Task SendAll(SongListHubModel data)
         {
-            var psk = _secretService.GetSecret<string>("SignalRKey");
-
-            if (psk == data.psk)
+            if (IsRequestAuthenticated(data.psk))
             {
                 var currentSong = data.currentSong;
                 var regularRequests = data.regularRequests;
@@ -34,34 +37,74 @@ namespace CoreCodedChatbot.Web.SignalRHubs
             }
         }
 
-        //public async Task UpdateById(SongListSingleSongModel updateModel)
-        //{
-        //    var psk = _secretService.GetSecret<string>("SignalRKey");
-
-        //    if (psk == updateModel.psk)
-        //    {
-        //        var updateSong = updateModel.PlaylistItem;
-
-        //        await Clients.All.SendCoreAsync("UpdateSong", new object[] { updateSong });
-        //    }
-        //}
-        
-        //public async Task RemoveById(SongListSingleSongModel removeModel)
-        //{
-        //    var psk = _secretService.GetSecret<string>("SignalRKey");
-
-        //    if (psk == removeModel.psk)
-        //    {
-        //        var removeSong = removeModel.PlaylistItem.songRequestId;
-
-        //        await Clients.All.SendCoreAsync("RemoveSong", new object[] { removeSong });
-        //    }
-        //}
-
-        public override Task OnConnectedAsync()
+        public async Task NewRequest(PlaylistNewItemModel request)
         {
-            _logger.LogInformation($"Client {Context.ConnectionId} Connected");
-            return base.OnConnectedAsync();
+            await SendNewItemTask("NewRequest", request);
+        }
+
+        public async Task PromoteRequestToVip(PlaylistHtmlEditModel request)
+        {
+            await SendHtmlEditTask("PromoteToVip", request);
+        }
+
+        public async Task PromoteRequestToSuperVip(PlaylistHtmlEditModel request)
+        {
+            await SendHtmlEditTask("PromoteToSuperVip", request);
+        }
+
+        public async Task EditRequest(PlaylistHtmlEditModel request)
+        {
+            await SendHtmlEditTask("EditRequest", request);
+        }
+
+        public async Task MarkRequestInDrive(PlaylistBasicEditModel request)
+        {
+            await SendBasicEditTask("MarkRequestInDrive", request);
+        }
+
+        public async Task MarkRequestUserLeftChat(PlaylistBasicEditModel request)
+        {
+            await SendBasicEditTask("MarkRequestUserLeftChat", request);
+        }
+
+        public async Task RemoveCurrentRequest(PlaylistBasicEditModel request)
+        {
+            await SendBasicEditTask("RemoveCurrent", request);
+        }
+
+        public async Task RemoveRequest(PlaylistBasicEditModel request)
+        {
+            await SendBasicEditTask("RemoveSong", request);
+        }
+
+        private async Task SendNewItemTask(string clientMethod, PlaylistNewItemModel request)
+        {
+            if (IsRequestAuthenticated(request.PreSharedKey))
+                await SendTask(clientMethod, new object[] {request.SongId, request.Html, (int) request.RequestType});
+        }
+
+        private async Task SendHtmlEditTask(string clientMethod, PlaylistHtmlEditModel request)
+        {
+            if (IsRequestAuthenticated(request.PreSharedKey))
+                await SendTask(clientMethod, new object[] {request.SongId, request.Html});
+        }
+
+        private async Task SendBasicEditTask(string clientMethod, PlaylistBasicEditModel request)
+        {
+            if (IsRequestAuthenticated(request.PreSharedKey))
+                await SendTask(clientMethod, new object[] {request.SongId});
+        }
+
+        private bool IsRequestAuthenticated(string psk)
+        {
+            var signalRKey = _secretService.GetSecret<string>("SignalRKey");
+
+            return psk == signalRKey;
+        }
+
+        private async Task SendTask(string clientMethod, object[] data)
+        {
+            await Clients.All.SendCoreAsync(clientMethod, data);
         }
     }
 }

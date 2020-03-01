@@ -9,10 +9,10 @@ namespace CoreCodedChatbot.Web.Components
 {
     public class NavViewComponent : ViewComponent
     {
-        private readonly IStreamStatusClient _streamStatusClient;
+        private readonly IStreamStatusApiClient _streamStatusClient;
         private readonly IConfigService _configService;
 
-        public NavViewComponent(IStreamStatusClient streamStatusClient, IConfigService configService)
+        public NavViewComponent(IStreamStatusApiClient streamStatusClient, IConfigService configService)
         {
             _streamStatusClient = streamStatusClient;
             _configService = configService;

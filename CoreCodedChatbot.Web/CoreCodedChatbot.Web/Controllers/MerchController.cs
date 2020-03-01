@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CoreCodedChatbot.Printful.Interfaces.ExternalClients;
 using CoreCodedChatbot.Printful.Interfaces.Factories;

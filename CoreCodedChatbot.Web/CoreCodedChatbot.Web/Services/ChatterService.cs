@@ -3,9 +3,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using CoreCodedChatbot.Config;
-using CoreCodedChatbot.Library.Interfaces.Services;
-using CoreCodedChatbot.Library.Models.Data;
 using CoreCodedChatbot.Web.Interfaces;
+using CoreCodedChatbot.Web.ViewModels.Playlist;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 

@@ -1,10 +1,6 @@
 ﻿
 using System.IO;
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-
-using CoreCodedChatbot.Database.Context;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 

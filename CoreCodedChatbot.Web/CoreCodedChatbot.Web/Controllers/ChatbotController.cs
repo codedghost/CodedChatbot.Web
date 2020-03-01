@@ -8,12 +8,11 @@ using CoreCodedChatbot.ApiContract.Enums.Playlist;
 using CoreCodedChatbot.ApiContract.RequestModels.Playlist;
 using CoreCodedChatbot.ApiContract.RequestModels.Vip;
 using CoreCodedChatbot.ApiContract.ResponseModels.Playlist.ChildModels;
-using CoreCodedChatbot.Library.Models.Enums;
-using CoreCodedChatbot.Library.Models.SongLibrary;
-using CoreCodedChatbot.Library.Models.View;
 using CoreCodedChatbot.Web.Interfaces;
 using CoreCodedChatbot.Web.ViewModels.AjaxRequestModels;
 using CoreCodedChatbot.Web.ViewModels.Playlist;
+using CoreCodedChatbot.Web.ViewModels.Shared;
+using CoreCodedChatbot.Web.ViewModels.SongLibrary;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -212,7 +211,7 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult RenderCurrentSong([FromBody] PlaylistItem data)
+        public async Task<IActionResult> RenderCurrentSong([FromBody] PlaylistItem data)
         {
             try
             {
@@ -229,15 +228,19 @@ namespace CoreCodedChatbot.Web.Controllers
                             IsMod = chattersModel?.IsUserMod(username) ?? false
                         };
                     ViewBag.UserIsMod = twitchUser?.IsMod ?? false;
+
+                    var apiResult = await _vipApiClient.DoesUserHaveVip(
+                        new DoesUserHaveVipRequestModel
+                        {
+                            Username = User.Identity.Name.ToLower()
+                        });
+
+                    ViewBag.UserHasVip = apiResult.HasVip;
                 }
 
-                ViewBag.UserHasVip = User.Identity.IsAuthenticated && _vipApiClient.DoesUserHaveVip(
-                                         new DoesUserHaveVipRequestModel
-                                         {
-                                             Username = User.Identity.Name.ToLower()
-                                         }).Result.HasVip;
+                var playlistCheck = await _playlistApiClient.IsPlaylistOpen();
 
-                ViewBag.IsPlaylistOpen = _playlistApiClient.IsPlaylistOpen().Result == PlaylistState.Open;
+                ViewBag.IsPlaylistOpen = playlistCheck == PlaylistState.Open;
                 return PartialView("Partials/List/CurrentSong", data);
             }
             catch (Exception)
@@ -247,21 +250,31 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult RenderRequestModal()
+        public async Task<IActionResult> RenderRequestModal()
         {
             try
             {
-                var shouldShowVip = _vipApiClient.DoesUserHaveVip(
+                var hasVipRequest = await _vipApiClient.DoesUserHaveVip(
                     new DoesUserHaveVipRequestModel
                     {
                         Username = User.Identity.Name.ToLower()
-                    }).Result.HasVip;
+                    });
 
-                var shouldShowSuperVip = _vipApiClient.DoesUserHaveSuperVip(new DoesUserHaveSuperVipRequestModel
-                                         {
-                                             Username = User.Identity.Name.ToLower()
-                                         }).Result.HasSuperVip &&
-                                         _vipApiClient.IsSuperVipInQueue().Result.IsInQueue;
+                var hasSuperVipRequest = await _vipApiClient.DoesUserHaveSuperVip(new DoesUserHaveSuperVipRequestModel
+                {
+                    Username = User.Identity.Name.ToLower()
+                });
+
+                var shouldShowVip = hasVipRequest.HasVip;
+
+                var shouldShowSuperVip = false;
+
+                if (hasSuperVipRequest.HasSuperVip)
+                {
+                    var shouldShowSuperVipRequest = await _vipApiClient.IsSuperVipInQueue();
+                        
+                    shouldShowSuperVip = !shouldShowSuperVipRequest.IsInQueue;
+                }
 
                 var requestViewModel = RequestSongViewModel.GetNewRequestViewModel(shouldShowVip, shouldShowSuperVip);
 
@@ -332,7 +345,7 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult RemoveCurrentSong([FromBody] string songId)
+        public async Task<IActionResult> RemoveCurrentSong([FromBody] string songId)
         {
             if (User.Identity.IsAuthenticated)
             {
@@ -342,7 +355,7 @@ namespace CoreCodedChatbot.Web.Controllers
                 {
                     try
                     {
-                        _playlistApiClient.ArchiveCurrentRequest(int.Parse(songId)).Wait();
+                        await _playlistApiClient.ArchiveCurrentRequest(int.Parse(songId));
                         return Ok();
                     }
                     catch (Exception)

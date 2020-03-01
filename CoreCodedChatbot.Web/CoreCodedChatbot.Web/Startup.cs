@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Text;
 using CoreCodedChatbot.ApiClient;
 using CoreCodedChatbot.Config;
 using CoreCodedChatbot.Database;
@@ -11,12 +9,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 
-using CoreCodedChatbot.Library;
 using CoreCodedChatbot.Logging;
 using CoreCodedChatbot.Printful;
 using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.Interfaces;
-using CoreCodedChatbot.Web.Services;
 using CoreCodedChatbot.Web.SignalRHubs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -57,24 +53,11 @@ namespace CoreCodedChatbot.Web
                 .AddChatbotNLog(secretService)
                 .AddChatbotWebAuth(configService, secretService);
 
-            //api.V5.Chat.GetChatRoomsByChannelAsync(config.ChannelId, config.ChatbotAccessToken)
-            //    .ContinueWith(
-            //        rooms =>
-            //        {
-            //            if (!rooms.IsCompletedSuccessfully) return;
-            //            var devRoomId = rooms.Result.Rooms.SingleOrDefault(r => r.Name == "dev")?.Id;
-            //            if (!string.IsNullOrWhiteSpace(devRoomId))
-            //            {
-            //                client.JoinRoom(config.ChannelId, devRoomId);
-            //            }
-            //        });
-
             //services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             //services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
             services.AddTwitchServices(configService, secretService)
                 .AddDbContextFactory()
-                .AddLibraryServices()
                 .AddSignalRServices()
                 .AddApiClientServices()
                 .AddChatbotPrintfulService();
@@ -94,8 +77,9 @@ namespace CoreCodedChatbot.Web
                 context.Database.Migrate();
             }
 
-            if (env.IsDevelopment())
+            if (env.IsDevelopment() || string.Equals(env.EnvironmentName, "Local", StringComparison.InvariantCultureIgnoreCase))
             {
+                app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
             }
             else
@@ -114,6 +98,12 @@ namespace CoreCodedChatbot.Web
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseCors(builder => builder.WithOrigins(new[]
+                    {"https://codedghost.com", "https://www.codedghost.com", "https://api.codedghost.com"})
+                .AllowAnyHeader()
+                .WithMethods("GET", "POST")
+                .AllowCredentials());
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
@@ -122,7 +112,9 @@ namespace CoreCodedChatbot.Web
             });
 
             var heartbeatService = serviceProvider.GetService<ISignalRHeartbeatService>();
+            heartbeatService.NotifyClients();
             var chatterService = serviceProvider.GetService<IChatterService>();
+            chatterService.UpdateChatters();
         }
     }
 }
