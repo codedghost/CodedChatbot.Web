@@ -80,11 +80,11 @@ namespace CoreCodedChatbot.Web.Controllers
                     TwitchUser = twitchUser
                 };
 
-            ViewBag.UserHasVip = User.Identity.IsAuthenticated && _vipApiClient.DoesUserHaveVip(
+            ViewBag.UserHasVip = User.Identity.IsAuthenticated && (_vipApiClient.DoesUserHaveVip(
                                      new DoesUserHaveVipRequestModel
                                      {
                                          Username = User.Identity.Name.ToLower()
-                                     }).Result.HasVip;
+                                     })?.Result?.HasVip ?? false);
 
             ViewBag.IsPlaylistOpen = _playlistApiClient.IsPlaylistOpen().Result == PlaylistState.Open;
 
