@@ -1,0 +1,40 @@
+﻿@using CoreCodedChatbot.ApiContract.ResponseModels.DevOps.ChildModels
+@model CoreCodedChatbot.Web.ViewModels.Development.RequestPracticeSongViewModel
+
+@{
+    ViewBag.SongName = "Request a Song";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/BugReport.css"/>
+}
+
+<div class="jumbotron">
+    <h2>Request Coded learns a song</h2>
+</div>
+
+@{
+    Html.BeginForm("RequestSong", "Development");
+}
+
+<div class="form-group">
+    @Html.LabelFor(m => m.SongName)
+    @Html.EditorFor(m => m.SongName, additionalViewData: new {@class = "form-control"})
+    @Html.ValidationMessageFor(m => m.SongName)
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.ExtraInformation)
+    @Html.TextAreaFor(m => m.ExtraInformation, htmlAttributes: new {@class = "form-control"})
+    @Html.ValidationMessageFor(m => m.ExtraInformation)
+</div>
+<div class="row">
+    <p>* denotes mandatory fields</p>
+</div>
+<br/>
+<div class="row">
+    <button class="btn btn-primary" type="submit">Submit</button>
+</div>
+@{
+    Html.EndForm();
+}
