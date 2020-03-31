@@ -57,7 +57,7 @@ namespace CoreCodedChatbot.Web.Controllers
 
         public async Task<IActionResult> SubmitSynonym(RequestSearchSynonymViewModel model)
         {
-            if (!User.Identity.IsAuthenticated)
+            if (User.Identity.IsAuthenticated)
             {
                 var username = User.FindFirst(c => c.Type == TwitchAuthenticationConstants.Claims.DisplayName)
                     ?.Value;
