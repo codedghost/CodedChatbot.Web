@@ -3,13 +3,16 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AspNet.Security.OAuth.Twitch;
+using CoreCodedChatbot.ApiClient.ApiClients;
 using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
 using CoreCodedChatbot.ApiContract.Enums.Playlist;
 using CoreCodedChatbot.ApiContract.RequestModels.Playlist;
+using CoreCodedChatbot.ApiContract.RequestModels.Search;
 using CoreCodedChatbot.ApiContract.RequestModels.Vip;
 using CoreCodedChatbot.ApiContract.ResponseModels.Playlist.ChildModels;
 using CoreCodedChatbot.Web.Interfaces;
 using CoreCodedChatbot.Web.ViewModels.AjaxRequestModels;
+using CoreCodedChatbot.Web.ViewModels.Chatbot;
 using CoreCodedChatbot.Web.ViewModels.Playlist;
 using CoreCodedChatbot.Web.ViewModels.Shared;
 using CoreCodedChatbot.Web.ViewModels.SongLibrary;
@@ -25,18 +28,52 @@ namespace CoreCodedChatbot.Web.Controllers
         private readonly IChatterService chatterService;
         private readonly IPlaylistApiClient _playlistApiClient;
         private readonly IVipApiClient _vipApiClient;
+        private readonly ISearchApiClient _searchApiClient;
         private readonly ILogger<ChatbotController> _logger;
 
         public ChatbotController(
             IChatterService chatterService,
             IPlaylistApiClient playlistApiClient,
             IVipApiClient vipApiClient,
+            ISearchApiClient searchApiClient,
                 ILogger<ChatbotController> logger)
         {
             this.chatterService = chatterService;
             _playlistApiClient = playlistApiClient;
             _vipApiClient = vipApiClient;
+            _searchApiClient = searchApiClient;
             _logger = logger;
+        }
+
+        public IActionResult Synonym()
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View();
+        }
+
+        public async Task<IActionResult> SubmitSynonym(RequestSearchSynonymViewModel model)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                var username = User.FindFirst(c => c.Type == TwitchAuthenticationConstants.Claims.DisplayName)
+                    ?.Value;
+                var result = await _searchApiClient.SaveSearchSynonymRequest(new SaveSearchSynonymRequest
+                {
+                    SearchSynonymRequest = model.SynonymRequest,
+                    Username = username
+                });
+
+                if (result)
+                {
+                    return RedirectToAction("Synonym", "Chatbot");
+                }
+            }
+
+            return RedirectToAction("Index", "Home");
         }
 
         public ActionResult Index()
@@ -393,12 +430,12 @@ namespace CoreCodedChatbot.Web.Controllers
                 {
                     case AddRequestResult.Success:
                         return Ok();
-                    case AddRequestResult.NoMultipleRequests:
-                        return BadRequest(new
-                        {
-                            Message =
-                                $"You cannot have more than {maxRegularRequests} regular request{(maxRegularRequests > 1 ? "s" : "")}"
-                        });
+                    //case AddRequestResult.NoMultipleRequests:
+                    //    return BadRequest(new
+                    //    {
+                    //        Message =
+                    //            $"You cannot have more than {maxRegularRequests} regular request{(maxRegularRequests > 1 ? "s" : "")}"
+                    //    });
                     case AddRequestResult.PlaylistClosed:
                         return BadRequest(new
                         {

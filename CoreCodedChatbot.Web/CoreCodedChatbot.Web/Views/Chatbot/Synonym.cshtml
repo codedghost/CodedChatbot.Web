@@ -1,0 +1,35 @@
+﻿@using CoreCodedChatbot.ApiContract.ResponseModels.DevOps.ChildModels
+@model CoreCodedChatbot.Web.ViewModels.Chatbot.RequestSearchSynonymViewModel
+
+@{
+    ViewBag.Title = "Request Synonym";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/BugReport.css" />
+}
+
+<div class="jumbotron">
+    <h2>Request Search Synonym Form</h2>
+</div>
+
+@{
+    Html.BeginForm("SubmitSynonym", "Chatbot");
+}
+
+<div class="form-group">
+    @Html.LabelFor(m => m.SynonymRequest)
+    @Html.EditorFor(m => m.SynonymRequest, additionalViewData: new { @class = "form-control" })
+    @Html.ValidationMessageFor(m => m.SynonymRequest)
+</div>
+<div class="row">
+    <p>* denotes mandatory fields</p>
+</div>
+<br />
+<div class="row">
+    <button class="btn btn-primary" type="submit">Submit</button>
+</div>
+@{
+    Html.EndForm();
+}
