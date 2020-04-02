@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 
 using CoreCodedChatbot.Logging;
-using CoreCodedChatbot.Printful;
 using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.Interfaces;
 using CoreCodedChatbot.Web.SignalRHubs;
@@ -59,8 +58,8 @@ namespace CoreCodedChatbot.Web
             services.AddTwitchServices(configService, secretService)
                 .AddDbContextFactory()
                 .AddSignalRServices()
-                .AddApiClientServices()
-                .AddChatbotPrintfulService();
+                .AddApiClientServices();
+                //.AddChatbotPrintfulService();
 
             services.AddControllersWithViews();
             services.AddRazorPages();
