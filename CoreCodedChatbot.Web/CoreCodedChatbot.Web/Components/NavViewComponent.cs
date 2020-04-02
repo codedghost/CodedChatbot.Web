@@ -22,19 +22,13 @@ namespace CoreCodedChatbot.Web.Components
         {
             var streamerChannel = _configService.Get<string>("StreamerChannel");
 
-            var streamStatus = await _streamStatusClient.GetStreamStatus(
-                new GetStreamStatusRequest
-                {
-                    BroadcasterUsername = streamerChannel
-                });
-
             // Get the current page so we can redirect the user back here after login/logout
             // TODO: Consider if the page we are returning to will attempt to auto login or anything similar
             var currentPage = HttpContext.Request.Path;
             
             return View(new NavigationViewModel
             {
-                IsBroadcasterOnline = streamStatus.IsOnline,
+                IsBroadcasterOnline = true,
                 LoginLogoutRedirect = currentPage
             });
         }
