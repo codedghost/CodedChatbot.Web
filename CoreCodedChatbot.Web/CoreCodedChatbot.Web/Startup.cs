@@ -13,6 +13,7 @@ using CoreCodedChatbot.Logging;
 using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.Interfaces;
 using CoreCodedChatbot.Web.SignalRHubs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -91,6 +92,8 @@ namespace CoreCodedChatbot.Web
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
+
+            app.UseCookiePolicy(new CookiePolicyOptions {MinimumSameSitePolicy = SameSiteMode.Lax});
 
             //app.UseMiddleware(typeof(ErrorHandlingMiddleware));
 
