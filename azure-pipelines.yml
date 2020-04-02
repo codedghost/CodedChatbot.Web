@@ -11,10 +11,10 @@ pr: none
 name: 1.0.$(BuildID)
 
 steps:
-- task: NuGetCommand@2
+- task: DotNetCoreCLI@2
   inputs:
     command: 'restore'
-    restoreSolution: '**/*.sln'
+    projects: '**/*.csproj'
     feedsToUse: 'select'
     vstsFeed: '087f7b3b-2160-4d35-8fb9-36edb3d5651b'
 - task: DotNetCoreCLI@2
