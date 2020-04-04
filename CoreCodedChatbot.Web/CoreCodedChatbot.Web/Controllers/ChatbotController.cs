@@ -527,18 +527,19 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult PromoteRequest([FromBody] string songId)
+        public async Task<IActionResult> PromoteRequest([FromBody] string songId)
         {
             if (User.Identity.IsAuthenticated)
             {
-                var promoteRequestResult = _playlistApiClient.PromoteWebRequest(
-                    new PromoteWebRequestRequestModel
+                var promoteRequestResult = await _playlistApiClient.PromoteSong(
+                    new PromoteSongRequest
                     {
                         SongRequestId = int.Parse(songId),
                         Username = User.Identity.Name.ToLower()
-                    }).Result.Result;
+                    });
 
-                switch (promoteRequestResult)
+
+                switch (promoteRequestResult.PromoteRequestResult)
                 {
                     case PromoteRequestResult.NotYourRequest:
                         return BadRequest(new
