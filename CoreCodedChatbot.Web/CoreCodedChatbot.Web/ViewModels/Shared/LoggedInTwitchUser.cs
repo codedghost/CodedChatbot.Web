@@ -4,5 +4,6 @@
     {
         public bool IsMod { get; set; }
         public string Username { get; set; }
+        public int Vips { get; set; }
     }
 }

@@ -81,7 +81,7 @@ namespace CoreCodedChatbot.Web.Controllers
             return View();
         }
 
-        public IActionResult List()
+        public async Task<IActionResult> List()
         {
             var chattersModel = chatterService.GetCurrentChatters();
             LoggedInTwitchUser twitchUser = null;
@@ -92,41 +92,48 @@ namespace CoreCodedChatbot.Web.Controllers
             {
                 var username = User.FindFirst(c => c.Type == TwitchAuthenticationConstants.Claims.DisplayName)
                     ?.Value;
+
+                var userVips = await _vipApiClient.GetUserVipCount(new GetUserVipCountRequest
+                {
+                    Username = username
+                });
+
                 twitchUser = new LoggedInTwitchUser
                 {
                     Username = username,
-                    IsMod = chattersModel?.IsUserMod(username) ?? false
+                    IsMod = chattersModel?.IsUserMod(username) ?? false,
+                    Vips = userVips?.Vips ?? 0
                 };
 
                 ViewBag.UserIsMod = twitchUser?.IsMod ?? false;
                 ViewBag.Username = twitchUser?.Username ?? string.Empty;
             }
 
-            var allCurrentSongRequests = _playlistApiClient.GetAllCurrentSongRequests()?.Result;
+            var allCurrentSongRequests = await _playlistApiClient.GetAllCurrentSongRequests();
 
-            var playlistModel = new PlaylistViewModel();
+            var playlistModel = new PlaylistViewModel
+            {
+                TwitchUser = twitchUser
+            };
 
             if (allCurrentSongRequests != null)
-                playlistModel = new PlaylistViewModel
-                {
-                    CurrentSong = allCurrentSongRequests.CurrentSong,
-                    RegularList = allCurrentSongRequests.RegularList
-                        .Where(r => r.songRequestId != allCurrentSongRequests.CurrentSong.songRequestId).ToArray(),
-                    VipList = allCurrentSongRequests.VipList
-                        .Where(r => r.songRequestId != allCurrentSongRequests.CurrentSong.songRequestId).ToArray(),
-                    TwitchUser = twitchUser
-                };
+            {
+                playlistModel.CurrentSong = allCurrentSongRequests.CurrentSong;
+                playlistModel.RegularList = allCurrentSongRequests.RegularList
+                    .Where(r => r.songRequestId != allCurrentSongRequests.CurrentSong.songRequestId).ToArray();
+                playlistModel.VipList = allCurrentSongRequests.VipList
+                    .Where(r => r.songRequestId != allCurrentSongRequests.CurrentSong.songRequestId).ToArray();
+            }
 
             ViewBag.UserHasVip = User.Identity.IsAuthenticated && (_vipApiClient.DoesUserHaveVip(
-                                     new DoesUserHaveVipRequestModel
-                                     {
-                                         Username = User.Identity.Name.ToLower()
-                                     })?.Result?.HasVip ?? false);
+                new DoesUserHaveVipRequestModel
+                {
+                    Username = User.Identity.Name.ToLower()
+                })?.Result?.HasVip ?? false);
 
-            var playlistTask = _playlistApiClient.IsPlaylistOpen();
+            var playlistTask = await _playlistApiClient.IsPlaylistOpen();
 
-            ViewBag.IsPlaylistOpen =
-                playlistTask.IsCompletedSuccessfully && playlistTask.Result == PlaylistState.Open;
+            ViewBag.IsPlaylistOpen = playlistTask == PlaylistState.Open;
 
             return View(playlistModel);
         }
@@ -433,12 +440,12 @@ namespace CoreCodedChatbot.Web.Controllers
                 {
                     case AddRequestResult.Success:
                         return Ok();
-                    //case AddRequestResult.NoMultipleRequests:
-                    //    return BadRequest(new
-                    //    {
-                    //        Message =
-                    //            $"You cannot have more than {maxRegularRequests} regular request{(maxRegularRequests > 1 ? "s" : "")}"
-                    //    });
+                    case AddRequestResult.MaximumRegularRequests:
+                        return BadRequest(new
+                        {
+                            Message =
+                                $"You cannot have more than {maxRegularRequests} regular request{(maxRegularRequests > 1 ? "s" : "")}"
+                        });
                     case AddRequestResult.PlaylistClosed:
                         return BadRequest(new
                         {

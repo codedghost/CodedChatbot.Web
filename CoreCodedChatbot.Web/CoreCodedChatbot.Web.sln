@@ -5,12 +5,14 @@ VisualStudioVersion = 16.0.29418.71
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreCodedChatbot.Web", "CoreCodedChatbot.Web\CoreCodedChatbot.Web.csproj", "{93FBF333-A57A-4870-BA71-10AC37734884}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreCodedChatbot.WebApp", "CoreCodedChatbot.WebApp\CoreCodedChatbot.WebApp.csproj", "{25F1DAD9-DFE4-4B5B-B25F-3903D47131C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreCodedChatbot.WebApp", "CoreCodedChatbot.WebApp\CoreCodedChatbot.WebApp.csproj", "{25F1DAD9-DFE4-4B5B-B25F-3903D47131C1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B2536215-7F83-4CB9-859C-F4A0B2ED086E}"
 	ProjectSection(SolutionItems) = preProject
 		..\.gitignore = ..\.gitignore
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreCodedChatbot.ApiClient", "..\..\CodedChatbot.ApiClient\CodedChatbot.ApiClient\CodedChatbot.ApiClient\CoreCodedChatbot.ApiClient.csproj", "{8D81E2C1-6CFD-4BED-8CE7-3924D5624777}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +28,10 @@ Global
 		{25F1DAD9-DFE4-4B5B-B25F-3903D47131C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25F1DAD9-DFE4-4B5B-B25F-3903D47131C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25F1DAD9-DFE4-4B5B-B25F-3903D47131C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D81E2C1-6CFD-4BED-8CE7-3924D5624777}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D81E2C1-6CFD-4BED-8CE7-3924D5624777}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D81E2C1-6CFD-4BED-8CE7-3924D5624777}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D81E2C1-6CFD-4BED-8CE7-3924D5624777}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
