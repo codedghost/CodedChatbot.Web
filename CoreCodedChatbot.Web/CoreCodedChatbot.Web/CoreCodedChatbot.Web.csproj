@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.Twitch" Version="3.0.0" />
+    <PackageReference Include="CoreCodedChatbot.ApiClient" Version="1.0.577" />
     <PackageReference Include="CoreCodedChatbot.Config" Version="1.0.345" />
     <PackageReference Include="CoreCodedChatbot.Database" Version="1.0.558" />
     <PackageReference Include="CoreCodedChatbot.Logging" Version="1.0.401" />
@@ -22,10 +23,6 @@
     <PackageReference Include="PayPalCheckoutSdk" Version="1.0.3" />
     <PackageReference Include="PrintfulLib" Version="1.0.556" />
     <PackageReference Include="TwitchLib" Version="3.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\CodedChatbot.ApiClient\CodedChatbot.ApiClient\CodedChatbot.ApiClient\CoreCodedChatbot.ApiClient.csproj" />
   </ItemGroup>
 
 </Project>
