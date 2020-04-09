@@ -4,5 +4,6 @@
     {
         public bool IsBroadcasterOnline { get; set; }
         public string LoginLogoutRedirect { get; set; }
+        public bool UserIsMod { get; set; }
     }
 }
