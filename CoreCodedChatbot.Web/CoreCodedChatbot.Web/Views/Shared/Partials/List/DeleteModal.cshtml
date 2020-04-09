@@ -36,12 +36,15 @@
 <script>
     function removeSong(event) {
         var songId = JSON.stringify(event.target.id);
+
+        $(event.target).attr("disabled", true);
         $.ajax({
             url: '@Url.Action("RemoveSong", "Chatbot")',
             type: "POST",
             data: songId,
             contentType: "application/json",
-            success: function() {
+            success: function () {
+                $(event.target).attr("disabled", true);
                 $("#deleteModal").modal('hide');
             }
         });

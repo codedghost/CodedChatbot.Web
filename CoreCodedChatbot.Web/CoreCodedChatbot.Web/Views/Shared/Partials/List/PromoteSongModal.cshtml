@@ -28,16 +28,19 @@
 <script>
     function promoteSong(event) {
         var songId = JSON.stringify(event.target.id);
-
+    
+        $(event.target).attr("disabled", true);
         $.ajax({
             url: '@Url.Action("PromoteRequest", "Chatbot")',
             type: "POST",
             data: songId,
             contentType: "application/json",
             success: function() {
+                $(event.target).attr("disabled", false);
                 $("#promoteModal").modal('hide');
             },
             error: function(err) {
+                $(event.target).attr("disabled", false);
                 $("#validationMessage").text(err.responseJSON.message);
                 $("#validationMessage").show();
             }

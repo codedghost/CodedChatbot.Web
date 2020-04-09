@@ -14,7 +14,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-                <button type="button" class="btn btn-primary" onclick="emptyPlaylist()">Yes</button>
+                <button id="submitButton" type="button" class="btn btn-primary" onclick="emptyPlaylist()">Yes</button>
             </div>
         </div>
     </div>
@@ -22,11 +22,13 @@
 
 <script>
     function emptyPlaylist() {
+        $("#submitButton").attr("disabled", true);
         $.ajax({
             url: '@Url.Action("EmptyPlaylist", "Chatbot")',
             type: "POST",
             contentType: "application/json",
-            success: function() {
+            success: function () {
+                $("#submitButton").attr("disabled", true);
                 $("#emptyPlaylistModal").modal('hide');
             }
         });
