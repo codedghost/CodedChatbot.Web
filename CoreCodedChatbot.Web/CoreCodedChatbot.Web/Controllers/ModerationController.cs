@@ -20,6 +20,7 @@ namespace CoreCodedChatbot.Web.Controllers
         private readonly IChatterService _chatterService;
         private readonly IModerationApiClient _moderationApiClient;
         private readonly ISolrService _solrService;
+        private readonly IDownloadChartService _donDownloadChartService;
         private readonly IChatbotContextFactory _chatbotContextFactory;
         private readonly ILogger<ModerationController> _logger;
 
@@ -27,12 +28,14 @@ namespace CoreCodedChatbot.Web.Controllers
             IChatterService chatterService,
             IModerationApiClient moderationApiClient,
             ISolrService solrService,
+            IDownloadChartService donDownloadChartService,
             IChatbotContextFactory chatbotContextFactory,
             ILogger<ModerationController> logger)
         {
             _chatterService = chatterService;
             _moderationApiClient = moderationApiClient;
             _solrService = solrService;
+            _donDownloadChartService = donDownloadChartService;
             _chatbotContextFactory = chatbotContextFactory;
             _logger = logger;
         }
@@ -129,6 +132,19 @@ namespace CoreCodedChatbot.Web.Controllers
                         DownloadUrl = s.DownloadUrl
                     }).ToList()
                 });
+            }
+        }
+
+        [Authorize]
+        public async Task<IActionResult> DownloadToOneDrive([FromBody] int songId)
+        {
+            using (var context = _chatbotContextFactory.Create())
+            {
+                var song = context.Songs.Find(songId);
+
+                _donDownloadChartService.Download(song.DownloadUrl, song.SongId);
+
+                return RedirectToAction("Search", "Moderation");
             }
         }
     }

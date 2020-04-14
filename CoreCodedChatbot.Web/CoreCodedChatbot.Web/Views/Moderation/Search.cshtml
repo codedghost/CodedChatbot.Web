@@ -32,6 +32,19 @@
 @foreach (var result in Model.SearchResults)
 {
     <div class="row">
-        <p>@result.SongName - @result.SongArtist - @result.DownloadUrl</p>
+        <p>@result.SongName - @result.SongArtist - @result.DownloadUrl</p><button id="@result.SongId" class="btn btn-primary" onclick="downloadSong(event)">Download To Drive</button>
     </div>
 }
+
+<script type="text/javascript">
+    function downloadSong(event) {
+        var songId = JSON.stringify(event.target.id);
+
+        $.ajax({
+            url: '@Url.Action("DownloadToOneDrive", "Moderation")',
+            type: "POST",
+            data: songId,
+            contentType: "application/json"
+        });
+    }
+</script>

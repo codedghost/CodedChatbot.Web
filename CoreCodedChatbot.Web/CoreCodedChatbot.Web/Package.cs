@@ -95,6 +95,7 @@ namespace CoreCodedChatbot.Web
             });
 
             services.AddSingleton<ISolrService, SolrService>();
+            services.AddSingleton<IDownloadChartService, DownloadChartService>();
 
             return services;
         }
