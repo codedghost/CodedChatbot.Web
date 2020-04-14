@@ -20,7 +20,7 @@ namespace CoreCodedChatbot.Web.Controllers
         private readonly IChatterService _chatterService;
         private readonly IModerationApiClient _moderationApiClient;
         private readonly ISolrService _solrService;
-        private readonly IDownloadChartService _donDownloadChartService;
+        private readonly IDownloadChartService _downloadChartService;
         private readonly IChatbotContextFactory _chatbotContextFactory;
         private readonly ILogger<ModerationController> _logger;
 
@@ -28,14 +28,14 @@ namespace CoreCodedChatbot.Web.Controllers
             IChatterService chatterService,
             IModerationApiClient moderationApiClient,
             ISolrService solrService,
-            IDownloadChartService donDownloadChartService,
+            IDownloadChartService downloadChartService,
             IChatbotContextFactory chatbotContextFactory,
             ILogger<ModerationController> logger)
         {
             _chatterService = chatterService;
             _moderationApiClient = moderationApiClient;
             _solrService = solrService;
-            _donDownloadChartService = donDownloadChartService;
+            _downloadChartService = downloadChartService;
             _chatbotContextFactory = chatbotContextFactory;
             _logger = logger;
         }
@@ -143,7 +143,7 @@ namespace CoreCodedChatbot.Web.Controllers
             {
                 var song = context.Songs.Find(songId);
 
-                _donDownloadChartService.Download(song.DownloadUrl, song.SongId);
+                _downloadChartService.Download(song.DownloadUrl, song.SongId);
 
                 return Ok();
             }
