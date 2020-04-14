@@ -60,7 +60,8 @@ namespace CoreCodedChatbot.Web
             services.AddTwitchServices(configService, secretService)
                 .AddDbContextFactory()
                 .AddSignalRServices()
-                .AddApiClientServices();
+                .AddApiClientServices()
+                .AddSolr(secretService);
                 //.AddChatbotPrintfulService();
 
             services.AddControllersWithViews();

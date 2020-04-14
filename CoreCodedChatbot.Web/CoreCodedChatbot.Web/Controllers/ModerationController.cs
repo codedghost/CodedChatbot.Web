@@ -1,7 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using CoreCodedChatbot.ApiClient.ApiClients;
 using CoreCodedChatbot.ApiContract.RequestModels.Moderation;
+using CoreCodedChatbot.Database.Context.Interfaces;
 using CoreCodedChatbot.Web.Interfaces;
+using CoreCodedChatbot.Web.Models;
+using CoreCodedChatbot.Web.Services;
 using CoreCodedChatbot.Web.ViewModels.Moderation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,15 +19,21 @@ namespace CoreCodedChatbot.Web.Controllers
     {
         private readonly IChatterService _chatterService;
         private readonly IModerationApiClient _moderationApiClient;
+        private readonly ISolrService _solrService;
+        private readonly IChatbotContextFactory _chatbotContextFactory;
         private readonly ILogger<ModerationController> _logger;
 
         public ModerationController(
             IChatterService chatterService,
             IModerationApiClient moderationApiClient,
+            ISolrService solrService,
+            IChatbotContextFactory chatbotContextFactory,
             ILogger<ModerationController> logger)
         {
             _chatterService = chatterService;
             _moderationApiClient = moderationApiClient;
+            _solrService = solrService;
+            _chatbotContextFactory = chatbotContextFactory;
             _logger = logger;
         }
 
@@ -63,6 +75,61 @@ namespace CoreCodedChatbot.Web.Controllers
             }
 
             return RedirectToAction("Index", "Home");
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Search()
+        {
+            var chattersModel = _chatterService.GetCurrentChatters();
+
+            if (!chattersModel?.IsUserMod(User.Identity.Name) ?? false)
+                RedirectToAction("Index", "Home");
+
+            var model = new SearchViewModel
+            {
+                SearchTerms = String.Empty,
+                SearchResults = new List<SearchResults>()
+
+            };
+
+            return View(model);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> SubmitSearch(SearchViewModel search)
+        {
+            if (string.IsNullOrWhiteSpace(search.SearchTerms))
+                return View("Search", new SearchViewModel
+                {
+                    SearchTerms = string.Empty,
+                    SearchResults = new List<SearchResults>()
+                });
+
+            var result = await _solrService.Search(search.SearchTerms);
+            if (!result.Any())
+                return View("Search", new SearchViewModel
+                {
+                    SearchTerms = search.SearchTerms,
+                    SearchResults = new List<SearchResults>()
+                });
+
+            using (var context = _chatbotContextFactory.Create())
+            {
+                var songIds = result.Select(r => r.SongId);
+
+                var songs = context.Songs.Where(s => songIds.Contains(s.SongId));
+
+                return View("Search", new SearchViewModel
+                {
+                    SearchTerms = search.SearchTerms,
+                    SearchResults = songs.Select(s => new SearchResults
+                    {
+                        SongName = s.SongName,
+                        SongArtist = s.SongArtist,
+                        DownloadUrl = s.DownloadUrl
+                    }).ToList()
+                });
+            }
         }
     }
 }

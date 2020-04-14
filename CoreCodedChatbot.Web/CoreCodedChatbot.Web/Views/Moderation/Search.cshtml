@@ -1,0 +1,37 @@
+﻿@model CoreCodedChatbot.Web.ViewModels.Moderation.SearchViewModel
+@{
+    ViewData["Title"] = "Search";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/TransferUser.css"/>
+}
+
+<div class="jumbotron">
+    <h2>Search</h2>
+</div>
+
+@{
+        Html.BeginForm("SubmitSearch", "Moderation", new {@name="SearchForm" });
+}
+
+<div class="form-group">
+    @Html.LabelFor(m => m.SearchTerms)
+    @Html.EditorFor(m => m.SearchTerms, new {@class = "form-control"})
+    @Html.ValidationMessageFor(m => m.SearchTerms)
+</div>
+<br/>
+<div class="row">
+    <button id="submitButton" class="btn btn-primary" type="submit">Submit</button>
+</div>
+@{
+    Html.EndForm();
+}
+
+@foreach (var result in Model.SearchResults)
+{
+    <div class="row">
+        <p>@result.SongName - @result.SongArtist - @result.DownloadUrl</p>
+    </div>
+}
