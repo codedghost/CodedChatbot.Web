@@ -127,6 +127,7 @@ namespace CoreCodedChatbot.Web.Controllers
                     SearchTerms = search.SearchTerms,
                     SearchResults = songs.Select(s => new SearchResults
                     {
+                        SongId = s.SongId,
                         SongName = s.SongName,
                         SongArtist = s.SongArtist,
                         DownloadUrl = s.DownloadUrl
@@ -145,7 +146,7 @@ namespace CoreCodedChatbot.Web.Controllers
 
                 _donDownloadChartService.Download(song.DownloadUrl, song.SongId);
 
-                return RedirectToAction("Search", "Moderation");
+                return Ok();
             }
         }
     }
