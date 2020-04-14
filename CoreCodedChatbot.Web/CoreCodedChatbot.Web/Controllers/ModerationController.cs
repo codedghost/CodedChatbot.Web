@@ -136,7 +136,6 @@ namespace CoreCodedChatbot.Web.Controllers
             }
         }
 
-        [Authorize]
         [HttpPost]
         public async Task<IActionResult> DownloadToOneDrive([FromBody] int songId)
         {
