@@ -1,10 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using CoreCodedChatbot.Web.ViewModels.Merch;
-using Microsoft.AspNetCore.Mvc;
-using PrintfulLib.Interfaces.ExternalClients;
-
-namespace CoreCodedChatbot.Web.Controllers
+﻿namespace CoreCodedChatbot.Web.Controllers
 {
     //public class MerchController : Controller
     //{

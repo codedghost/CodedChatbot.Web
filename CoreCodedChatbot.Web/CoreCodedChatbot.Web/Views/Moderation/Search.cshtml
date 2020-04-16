@@ -17,9 +17,14 @@
 }
 
 <div class="form-group">
-    @Html.LabelFor(m => m.SearchTerms)
-    @Html.EditorFor(m => m.SearchTerms, new {@class = "form-control"})
-    @Html.ValidationMessageFor(m => m.SearchTerms)
+    @Html.LabelFor(m => m.SongName)
+    @Html.EditorFor(m => m.SongName, new {@class = "form-control"})
+    @Html.ValidationMessageFor(m => m.SongName)
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.ArtistName)
+    @Html.EditorFor(m => m.ArtistName, new { @class = "form-control" })
+    @Html.ValidationMessageFor(m => m.ArtistName)
 </div>
 <br/>
 <div class="row">
@@ -38,13 +43,19 @@
 
 <script>
     function downloadSong(event) {
-        var songId = JSON.stringify({songId: event.target.id});
+        var songId = JSON.stringify({SongId: parseInt(event.target.id)});
 
         $.ajax({
             url: '@Url.Action("DownloadToOneDrive", "Moderation")',
             type: "POST",
             data: songId,
-            contentType: "application/json"
+            contentType: "application/json",
+            success: function() {
+                $(event.target).text("Saved!");
+            },
+            error: function() {
+                $(event.target).text("Error - Try again");
+            }
         });
     }
 </script>

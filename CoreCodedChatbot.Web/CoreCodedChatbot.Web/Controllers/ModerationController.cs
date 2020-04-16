@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CoreCodedChatbot.ApiClient.ApiClients;
 using CoreCodedChatbot.ApiContract.RequestModels.Moderation;
-using CoreCodedChatbot.Database.Context.Interfaces;
+using CoreCodedChatbot.ApiContract.RequestModels.Search;
 using CoreCodedChatbot.Web.Interfaces;
 using CoreCodedChatbot.Web.Models;
-using CoreCodedChatbot.Web.Services;
 using CoreCodedChatbot.Web.ViewModels.Moderation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,24 +16,18 @@ namespace CoreCodedChatbot.Web.Controllers
     {
         private readonly IChatterService _chatterService;
         private readonly IModerationApiClient _moderationApiClient;
-        private readonly ISolrService _solrService;
-        private readonly IDownloadChartService _downloadChartService;
-        private readonly IChatbotContextFactory _chatbotContextFactory;
+        private readonly ISearchApiClient _searchApiClient;
         private readonly ILogger<ModerationController> _logger;
 
         public ModerationController(
             IChatterService chatterService,
             IModerationApiClient moderationApiClient,
-            ISolrService solrService,
-            IDownloadChartService downloadChartService,
-            IChatbotContextFactory chatbotContextFactory,
+            ISearchApiClient searchApiClient,
             ILogger<ModerationController> logger)
         {
             _chatterService = chatterService;
             _moderationApiClient = moderationApiClient;
-            _solrService = solrService;
-            _downloadChartService = downloadChartService;
-            _chatbotContextFactory = chatbotContextFactory;
+            _searchApiClient = searchApiClient;
             _logger = logger;
         }
 
@@ -69,7 +60,6 @@ namespace CoreCodedChatbot.Web.Controllers
                 NewUsername = request.NewUsername
             });
 
-
             if (!success)
             {
                 ControllerContext.ModelState.AddModelError("TransferStatus",
@@ -90,9 +80,9 @@ namespace CoreCodedChatbot.Web.Controllers
 
             var model = new SearchViewModel
             {
-                SearchTerms = String.Empty,
-                SearchResults = new List<SearchResults>()
-
+                SongName= string.Empty,
+                ArtistName = string.Empty,
+                SearchResults = new List<SearchResult>()
             };
 
             return View(model);
@@ -101,52 +91,56 @@ namespace CoreCodedChatbot.Web.Controllers
         [Authorize]
         public async Task<IActionResult> SubmitSearch(SearchViewModel search)
         {
-            if (string.IsNullOrWhiteSpace(search.SearchTerms))
+            if (string.IsNullOrWhiteSpace(search.SongName) && string.IsNullOrWhiteSpace(search.ArtistName))
                 return View("Search", new SearchViewModel
                 {
-                    SearchTerms = string.Empty,
-                    SearchResults = new List<SearchResults>()
+                    SongName = string.Empty,
+                    ArtistName = string.Empty,
+                    SearchResults = new List<SearchResult>()
                 });
 
-            var result = await _solrService.Search(search.SearchTerms);
-            if (!result.Any())
-                return View("Search", new SearchViewModel
-                {
-                    SearchTerms = search.SearchTerms,
-                    SearchResults = new List<SearchResults>()
-                });
-
-            using (var context = _chatbotContextFactory.Create())
+            var searchResults = await _searchApiClient.FormattedSongSearch(new FormattedSongSearchRequest
             {
-                var songIds = result.Select(r => r.SongId);
+                SongName = search.SongName,
+                ArtistName = search.ArtistName
+            });
 
-                var songs = context.Songs.Where(s => songIds.Contains(s.SongId));
-
-                return View("Search", new SearchViewModel
+            var searchResultsViewModel = new List<SearchResult>();
+            foreach (var result in searchResults.SearchResults)
+            {
+                if (!result.DownloadUrl.StartsWith("http")) continue;
+                searchResultsViewModel.Add(new SearchResult
                 {
-                    SearchTerms = search.SearchTerms,
-                    SearchResults = songs.Select(s => new SearchResults
-                    {
-                        SongId = s.SongId,
-                        SongName = s.SongName,
-                        SongArtist = s.SongArtist,
-                        DownloadUrl = s.DownloadUrl
-                    }).ToList()
+                    SongId = result.SongId,
+                    SongName = result.SongName,
+                    SongArtist = result.ArtistName,
+                    DownloadUrl = result.DownloadUrl
                 });
             }
+
+            return View("Search", new SearchViewModel
+            {
+                SongName = search.SongName,
+                ArtistName = search.SongName,
+                SearchResults = searchResultsViewModel
+            });
         }
 
         [HttpPost]
-        public async Task<IActionResult> DownloadToOneDrive([FromBody] int songId)
+        public async Task<IActionResult> DownloadToOneDrive([FromBody] SearchDownloadModel model)
         {
-            using (var context = _chatbotContextFactory.Create())
+            if (model == null || model.SongId == 0)
+                return BadRequest();
+
+            var response = await _searchApiClient.DownloadToOneDrive(new DownloadToOneDriveRequest
             {
-                var song = context.Songs.Find(songId);
+                SongId = model.SongId
+            });
 
-                _downloadChartService.Download(song.DownloadUrl, song.SongId);
+            if (!response)
+                return BadRequest();
 
-                return Ok();
-            }
+            return Ok();
         }
     }
 }

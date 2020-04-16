@@ -4,7 +4,6 @@ using CoreCodedChatbot.Config;
 using CoreCodedChatbot.Web.Interfaces;
 using CoreCodedChatbot.Web.ViewModels.NavigationViewModel;
 using Microsoft.AspNetCore.Mvc;
-using GetStreamStatusRequest = CoreCodedChatbot.ApiContract.RequestModels.StreamStatus.GetStreamStatusRequest;
 
 namespace CoreCodedChatbot.Web.Components
 {
@@ -28,7 +27,7 @@ namespace CoreCodedChatbot.Web.Components
         {
             var streamerChannel = _configService.Get<string>("StreamerChannel");
 
-            var isUserMod = User.Identity.IsAuthenticated &&
+            var isUserMod = (HttpContext?.User?.Identity?.IsAuthenticated ?? false) &&
                             _chatterService.GetCurrentChatters().IsUserMod(User.Identity.Name.ToLower());
 
             // Get the current page so we can redirect the user back here after login/logout

@@ -3,7 +3,6 @@
     public class SearchDownloadModel
     {
         public int SongId { get; set; }
-        public string DownloadUrl { get; set; }
 
     }
 }

@@ -6,10 +6,12 @@ namespace CoreCodedChatbot.Web.ViewModels.Moderation
 {
     public class SearchViewModel
     {
-        [Display(Name = "Please enter your search terms")]
-        [Required(ErrorMessage = "This field is required")]
-        public string SearchTerms { get; set; }
+        [Display(Name = "Please enter the song name")]
+        public string SongName { get; set; }
 
-        public List<SearchResults> SearchResults { get; set; }
+        [Display(Name = "Please enter the artist name")]
+        public string ArtistName { get; set; }
+
+        public List<SearchResult> SearchResults { get; set; }
     }
 }

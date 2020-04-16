@@ -1,6 +1,6 @@
 ﻿namespace CoreCodedChatbot.Web.Models
 {
-    public class SearchResults
+    public class SearchResult
     {
         public int SongId { get; set; }
         public string SongName { get; set; }
