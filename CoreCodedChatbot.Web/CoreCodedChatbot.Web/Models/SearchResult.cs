@@ -5,6 +5,8 @@
         public int SongId { get; set; }
         public string SongName { get; set; }
         public string SongArtist { get; set; }
-        public string DownloadUrl { get; set; }
+        public bool IsDownloaded { get; set; }
+        public bool IsOfficial { get; set; }
+        public bool IsLinkDead { get; set; }
     }
 }

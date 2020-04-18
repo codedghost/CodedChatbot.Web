@@ -36,9 +36,25 @@
 
 @foreach (var result in Model.SearchResults)
 {
-    <div class="row">
-        <p>@result.SongName - @result.SongArtist - @result.DownloadUrl</p><button id="@result.SongId" type="button" class="btn btn-primary" onclick="downloadSong(event)">Download To Drive</button>
-    </div>
+<div class="row">
+    @if (result.IsOfficial)
+    {
+        <button type="button" class="btn btn-danger">Official Song</button>
+    }
+    else if (result.IsLinkDead)
+    {
+        <button type="button" class="btn btn-secondary">Cannot Download</button>
+    }
+    else if (result.IsDownloaded)
+    {
+        <button type="button" class="btn btn-warning">Already downloaded</button>
+    }
+    else
+    {
+        <button id="@result.SongId" type="button" class="btn btn-primary" onclick="downloadSong(event)">Download To Drive</button>
+    }
+    <p> @result.SongName - @result.SongArtist</p>
+</div>
 }
 
 <script>

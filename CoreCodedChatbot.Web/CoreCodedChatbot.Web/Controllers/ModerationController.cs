@@ -108,13 +108,14 @@ namespace CoreCodedChatbot.Web.Controllers
             var searchResultsViewModel = new List<SearchResult>();
             foreach (var result in searchResults.SearchResults)
             {
-                if (!result.DownloadUrl.StartsWith("http")) continue;
                 searchResultsViewModel.Add(new SearchResult
                 {
                     SongId = result.SongId,
                     SongName = result.SongName,
                     SongArtist = result.ArtistName,
-                    DownloadUrl = result.DownloadUrl
+                    IsOfficial = result.IsOfficial,
+                    IsDownloaded = result.IsDownloaded,
+                    IsLinkDead = result.IsLinkDead
                 });
             }
 
