@@ -3,13 +3,16 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AspNet.Security.OAuth.Twitch;
+using CoreCodedChatbot.ApiClient.ApiClients;
 using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
 using CoreCodedChatbot.ApiContract.Enums.Playlist;
 using CoreCodedChatbot.ApiContract.RequestModels.Playlist;
+using CoreCodedChatbot.ApiContract.RequestModels.Search;
 using CoreCodedChatbot.ApiContract.RequestModels.Vip;
 using CoreCodedChatbot.ApiContract.ResponseModels.Playlist.ChildModels;
 using CoreCodedChatbot.Web.Interfaces;
 using CoreCodedChatbot.Web.ViewModels.AjaxRequestModels;
+using CoreCodedChatbot.Web.ViewModels.Chatbot;
 using CoreCodedChatbot.Web.ViewModels.Playlist;
 using CoreCodedChatbot.Web.ViewModels.Shared;
 using CoreCodedChatbot.Web.ViewModels.SongLibrary;
@@ -25,18 +28,52 @@ namespace CoreCodedChatbot.Web.Controllers
         private readonly IModService _modService;
         private readonly IPlaylistApiClient _playlistApiClient;
         private readonly IVipApiClient _vipApiClient;
+        private readonly ISearchApiClient _searchApiClient;
         private readonly ILogger<ChatbotController> _logger;
 
         public ChatbotController(
             IModService modService,
             IPlaylistApiClient playlistApiClient,
             IVipApiClient vipApiClient,
+            ISearchApiClient searchApiClient,
             ILogger<ChatbotController> logger)
         {
             this._modService = modService;
             _playlistApiClient = playlistApiClient;
             _vipApiClient = vipApiClient;
+            _searchApiClient = searchApiClient;
             _logger = logger;
+        }
+
+        public IActionResult Synonym()
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View();
+        }
+
+        public async Task<IActionResult> SubmitSynonym(RequestSearchSynonymViewModel model)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                var username = User.FindFirst(c => c.Type == TwitchAuthenticationConstants.Claims.DisplayName)
+                    ?.Value;
+                var result = await _searchApiClient.SaveSearchSynonymRequest(new SaveSearchSynonymRequest
+                {
+                    SearchSynonymRequest = model.SynonymRequest,
+                    Username = username
+                });
+
+                if (result)
+                {
+                    return RedirectToAction("Synonym", "Chatbot");
+                }
+            }
+
+            return RedirectToAction("Index", "Home");
         }
 
         public ActionResult Index()
@@ -44,7 +81,7 @@ namespace CoreCodedChatbot.Web.Controllers
             return View();
         }
 
-        public IActionResult List()
+        public async Task<IActionResult> List()
         {
             LoggedInTwitchUser twitchUser = null;
 
@@ -54,41 +91,48 @@ namespace CoreCodedChatbot.Web.Controllers
             {
                 var username = User.FindFirst(c => c.Type == TwitchAuthenticationConstants.Claims.DisplayName)
                     ?.Value;
+
+                var userVips = await _vipApiClient.GetUserVipCount(new GetUserVipCountRequest
+                {
+                    Username = username
+                });
+
                 twitchUser = new LoggedInTwitchUser
                 {
                     Username = username,
-                    IsMod = _modService.IsUserModerator(username)
+                    IsMod = _modService.IsUserModerator(username),
+                    Vips = userVips?.Vips ?? 0
                 };
 
                 ViewBag.UserIsMod = twitchUser?.IsMod ?? false;
                 ViewBag.Username = twitchUser?.Username ?? string.Empty;
             }
 
-            var allCurrentSongRequests = _playlistApiClient.GetAllCurrentSongRequests()?.Result;
+            var allCurrentSongRequests = await _playlistApiClient.GetAllCurrentSongRequests();
 
-            var playlistModel = new PlaylistViewModel();
+            var playlistModel = new PlaylistViewModel
+            {
+                TwitchUser = twitchUser
+            };
 
             if (allCurrentSongRequests != null)
-                playlistModel = new PlaylistViewModel
-                {
-                    CurrentSong = allCurrentSongRequests.CurrentSong,
-                    RegularList = allCurrentSongRequests.RegularList
-                        .Where(r => r.songRequestId != allCurrentSongRequests.CurrentSong.songRequestId).ToArray(),
-                    VipList = allCurrentSongRequests.VipList
-                        .Where(r => r.songRequestId != allCurrentSongRequests.CurrentSong.songRequestId).ToArray(),
-                    TwitchUser = twitchUser
-                };
+            {
+                playlistModel.CurrentSong = allCurrentSongRequests.CurrentSong;
+                playlistModel.RegularList = allCurrentSongRequests.RegularList
+                    .Where(r => r.songRequestId != allCurrentSongRequests.CurrentSong.songRequestId).ToArray();
+                playlistModel.VipList = allCurrentSongRequests.VipList
+                    .Where(r => r.songRequestId != allCurrentSongRequests.CurrentSong.songRequestId).ToArray();
+            }
 
             ViewBag.UserHasVip = User.Identity.IsAuthenticated && (_vipApiClient.DoesUserHaveVip(
-                                     new DoesUserHaveVipRequestModel
-                                     {
-                                         Username = User.Identity.Name.ToLower()
-                                     })?.Result?.HasVip ?? false);
+                new DoesUserHaveVipRequestModel
+                {
+                    Username = User.Identity.Name.ToLower()
+                })?.Result?.HasVip ?? false);
 
-            var playlistTask = _playlistApiClient.IsPlaylistOpen();
+            var playlistTask = await _playlistApiClient.IsPlaylistOpen();
 
-            ViewBag.IsPlaylistOpen =
-                playlistTask.IsCompletedSuccessfully && playlistTask.Result == PlaylistState.Open;
+            ViewBag.IsPlaylistOpen = playlistTask == PlaylistState.Open;
 
             return View(playlistModel);
         }
@@ -389,7 +433,7 @@ namespace CoreCodedChatbot.Web.Controllers
                 {
                     case AddRequestResult.Success:
                         return Ok();
-                    case AddRequestResult.NoMultipleRequests:
+                    case AddRequestResult.MaximumRegularRequests:
                         return BadRequest(new
                         {
                             Message =
@@ -474,18 +518,19 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult PromoteRequest([FromBody] string songId)
+        public async Task<IActionResult> PromoteRequest([FromBody] string songId)
         {
             if (User.Identity.IsAuthenticated)
             {
-                var promoteRequestResult = _playlistApiClient.PromoteWebRequest(
-                    new PromoteWebRequestRequestModel
+                var promoteRequestResult = await _playlistApiClient.PromoteSong(
+                    new PromoteSongRequest
                     {
                         SongRequestId = int.Parse(songId),
                         Username = User.Identity.Name.ToLower()
-                    }).Result.Result;
+                    });
 
-                switch (promoteRequestResult)
+
+                switch (promoteRequestResult.PromoteRequestResult)
                 {
                     case PromoteRequestResult.NotYourRequest:
                         return BadRequest(new

@@ -36,12 +36,14 @@
 <script>
     function addSongToDrive(event) {
         var songId = JSON.stringify(event.target.id);
+        $(event.target).attr("disabled", true);
         $.ajax({
             url: '@Url.Action("AddSongToDrive", "Chatbot")',
             type: "POST",
             data: songId,
             contentType: "application/json",
             success: function() {
+                $(event.target).attr("disabled", true);
                 $("#addToDriveModal").modal('hide');
             }
         });

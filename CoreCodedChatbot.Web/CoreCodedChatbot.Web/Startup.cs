@@ -7,10 +7,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 
 using CoreCodedChatbot.Logging;
-using CoreCodedChatbot.Printful;
 using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.Interfaces;
 using CoreCodedChatbot.Web.SignalRHubs;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Hosting;
 
 namespace CoreCodedChatbot.Web
@@ -54,8 +55,8 @@ namespace CoreCodedChatbot.Web
 
             services.AddTwitchServices(configService, secretService)
                 .AddSignalRServices()
-                .AddApiClientServices()
-                .AddChatbotPrintfulService();
+                .AddApiClientServices();
+                //.AddChatbotPrintfulService();
 
             services.AddControllersWithViews();
             services.AddRazorPages();
@@ -76,6 +77,13 @@ namespace CoreCodedChatbot.Web
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
+            app.UseCookiePolicy(new CookiePolicyOptions {MinimumSameSitePolicy = SameSiteMode.Lax});
 
             //app.UseMiddleware(typeof(ErrorHandlingMiddleware));
 

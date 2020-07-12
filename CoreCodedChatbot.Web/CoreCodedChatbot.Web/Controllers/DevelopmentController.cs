@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using AspNet.Security.OAuth.Twitch;
 using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
 using CoreCodedChatbot.ApiContract.RequestModels.DevOps;
 using CoreCodedChatbot.ApiContract.ResponseModels.DevOps.ChildModels;
@@ -28,6 +29,30 @@ namespace CoreCodedChatbot.Web.Controllers
             {
                 WorkItems = currentIterationWorkItems?.WorkItems ?? new List<DevOpsWorkItem>()
             });
+        }
+
+        [HttpGet]
+        [Authorize]
+        public IActionResult RequestSong()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> RequestSong(RequestPracticeSongViewModel request)
+        {
+            var username = User.FindFirst(c => c.Type == TwitchAuthenticationConstants.Claims.DisplayName)
+                ?.Value;
+
+            var success = await _devOpsApiClient.PracticeSongRequest(new PracticeSongRequest
+            {
+                SongName = request.SongName,
+                ExtraInformation = request.ExtraInformation,
+                Username = username
+            });
+
+            return success ? RedirectToAction("RequestSong", "Development") : RedirectToAction("Index", "Home");
         }
 
         [HttpGet]

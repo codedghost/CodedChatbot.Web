@@ -57,6 +57,7 @@ namespace CoreCodedChatbot.Web
             client.Connect();
 
             var api = new TwitchAPI();
+            api.Settings.ClientId = secretService.GetSecret<string>("ChatbotAccessClientId");
             api.Settings.AccessToken = secretService.GetSecret<string>("ChatbotAccessToken");
 
             services.AddSingleton(client);
