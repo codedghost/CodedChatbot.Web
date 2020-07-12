@@ -22,18 +22,18 @@ namespace CoreCodedChatbot.Web.Controllers
 {
     public class ChatbotController : Controller
     {
-        private readonly IChatterService chatterService;
+        private readonly IModService _modService;
         private readonly IPlaylistApiClient _playlistApiClient;
         private readonly IVipApiClient _vipApiClient;
         private readonly ILogger<ChatbotController> _logger;
 
         public ChatbotController(
-            IChatterService chatterService,
+            IModService modService,
             IPlaylistApiClient playlistApiClient,
             IVipApiClient vipApiClient,
-                ILogger<ChatbotController> logger)
+            ILogger<ChatbotController> logger)
         {
-            this.chatterService = chatterService;
+            this._modService = modService;
             _playlistApiClient = playlistApiClient;
             _vipApiClient = vipApiClient;
             _logger = logger;
@@ -46,7 +46,6 @@ namespace CoreCodedChatbot.Web.Controllers
 
         public IActionResult List()
         {
-            var chattersModel = chatterService.GetCurrentChatters();
             LoggedInTwitchUser twitchUser = null;
 
             ViewBag.UserIsMod = User.Identity.IsAuthenticated;
@@ -58,7 +57,7 @@ namespace CoreCodedChatbot.Web.Controllers
                 twitchUser = new LoggedInTwitchUser
                 {
                     Username = username,
-                    IsMod = chattersModel?.IsUserMod(username) ?? false
+                    IsMod = _modService.IsUserModerator(username)
                 };
 
                 ViewBag.UserIsMod = twitchUser?.IsMod ?? false;
@@ -108,7 +107,6 @@ namespace CoreCodedChatbot.Web.Controllers
         {
             try
             {
-                var chattersModel = chatterService.GetCurrentChatters();
                 ViewBag.UserIsMod = User.Identity.IsAuthenticated;
 
                 if (User.Identity.IsAuthenticated)
@@ -118,7 +116,7 @@ namespace CoreCodedChatbot.Web.Controllers
                     var twitchUser = new LoggedInTwitchUser
                     {
                         Username = username,
-                        IsMod = chattersModel?.IsUserMod(username) ?? false
+                        IsMod = _modService.IsUserModerator(username)
                     };
 
                     ViewBag.UserIsMod = twitchUser?.IsMod ?? false;
@@ -146,7 +144,6 @@ namespace CoreCodedChatbot.Web.Controllers
         {
             try
             {
-                var chattersModel = chatterService.GetCurrentChatters();
                 ViewBag.UserIsMod = User.Identity.IsAuthenticated;
 
                 if (User.Identity.IsAuthenticated)
@@ -156,8 +153,8 @@ namespace CoreCodedChatbot.Web.Controllers
                     var twitchUser = new LoggedInTwitchUser
                         {
                             Username = username,
-                            IsMod = chattersModel?.IsUserMod(username) ?? false
-                        };
+                            IsMod = _modService.IsUserModerator(username)
+                    };
 
                     ViewBag.UserIsMod = twitchUser?.IsMod ?? false;
                     ViewBag.Username = twitchUser?.Username ?? string.Empty;
@@ -218,7 +215,6 @@ namespace CoreCodedChatbot.Web.Controllers
         {
             try
             {
-                var chattersModel = chatterService.GetCurrentChatters();
                 ViewBag.UserIsMod = User.Identity.IsAuthenticated;
 
                 if (User.Identity.IsAuthenticated)
@@ -228,8 +224,8 @@ namespace CoreCodedChatbot.Web.Controllers
                     var twitchUser = new LoggedInTwitchUser
                         {
                             Username = username,
-                            IsMod = chattersModel?.IsUserMod(username) ?? false
-                        };
+                            IsMod = _modService.IsUserModerator(username)
+                    };
                     ViewBag.UserIsMod = twitchUser?.IsMod ?? false;
 
                     var apiResult = await _vipApiClient.DoesUserHaveVip(
@@ -333,10 +329,9 @@ namespace CoreCodedChatbot.Web.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                var chattersModel = chatterService.GetCurrentChatters();
                 var request = _playlistApiClient.GetRequestById(int.Parse(songId)).Result.Request;
 
-                if ((chattersModel?.IsUserMod(User.Identity.Name) ?? false) ||
+                if (_modService.IsUserModerator(User.Identity.Name) ||
                     string.Equals(User.Identity.Name, request.songRequester))
                 {
                     if (_playlistApiClient.ArchiveRequestById(int.Parse(songId)).Result)
@@ -352,9 +347,7 @@ namespace CoreCodedChatbot.Web.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                var chattersModel = chatterService.GetCurrentChatters();
-
-                if (chattersModel?.IsUserMod(User.Identity.Name) ?? false)
+                if (_modService.IsUserModerator(User.Identity.Name))
                 {
                     try
                     {
@@ -435,8 +428,6 @@ namespace CoreCodedChatbot.Web.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                var chatters = chatterService.GetCurrentChatters();
-
                 var requestModel = new EditWebRequestRequestModel
                 {
                     SongRequestId = int.Parse(requestData.SongRequestId),
@@ -446,7 +437,7 @@ namespace CoreCodedChatbot.Web.Controllers
                     IsVip = requestData.IsVip,
                     IsSuperVip = requestData.IsSuperVip,
                     Username = User.Identity.Name.ToLower(),
-                    IsMod = chatters?.IsUserMod(User.Identity.Name.ToLower()) ?? false
+                    IsMod = _modService.IsUserModerator(User.Identity.Name)
                 };
 
                 var editRequestResult =
@@ -668,8 +659,6 @@ namespace CoreCodedChatbot.Web.Controllers
                 return false;
             }
 
-            var chattersModel = chatterService.GetCurrentChatters();
-
             if (User.Identity.IsAuthenticated)
             {
                 var username = User?.FindFirst(c => c.Type == TwitchAuthenticationConstants.Claims.DisplayName)
@@ -677,7 +666,7 @@ namespace CoreCodedChatbot.Web.Controllers
                 var twitchUser = new LoggedInTwitchUser
                 {
                     Username = username,
-                    IsMod = chattersModel.IsUserMod(username)
+                    IsMod = _modService.IsUserModerator(username)
                 };
 
                 ViewBag.UserIsMod = twitchUser?.IsMod ?? false;

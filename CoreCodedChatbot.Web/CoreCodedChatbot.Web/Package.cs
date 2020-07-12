@@ -62,7 +62,7 @@ namespace CoreCodedChatbot.Web
             services.AddSingleton(client);
             services.AddSingleton(api);
 
-            services.AddSingleton<IChatterService, ChatterService>();
+            services.AddSingleton<IModService, ModService>();
 
             return services;
         }
