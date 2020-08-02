@@ -37,7 +37,7 @@ namespace CoreCodedChatbot.Web.Services
             _secretService = secretService;
             this._twitchApi = _twitchApi;
             _logger = logger;
-            chatterTimer = new Timer((x) => { UpdateModList(); }, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
+            chatterTimer = new Timer((x) => { UpdateModList(); }, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
         }
 
         public async void UpdateModList()
@@ -50,9 +50,9 @@ namespace CoreCodedChatbot.Web.Services
                     _secretService.GetSecret<string>("ChatbotAccessToken"));
                 _twitchApi.Settings.Scopes.Add(AuthScopes.Helix_Moderation_Read);
                 var moderatorResponse =
-                    await _twitchApi.Helix.Moderation.GetModeratorsAsync(_configService.Get<string>("StreamerChannel"),
+                    await _twitchApi.Helix.Moderation.GetModeratorsAsync(_configService.Get<string>("ChannelId"),
                         accessToken: _secretService.GetSecret<string>("ChatbotAccessToken"));
-                _moderators = moderatorResponse.Data.Select(m => m.UserName).ToArray();
+                _moderators = moderatorResponse.Data.Select(m => m.UserName.ToLower()).ToArray();
             }
             catch (Exception e)
             {
@@ -66,7 +66,8 @@ namespace CoreCodedChatbot.Web.Services
 
         public bool IsUserModerator(string username)
         {
-            return _moderators?.Contains(username?.ToLower()) ?? false;
+            var channelName = _configService.Get<string>("StreamerChannel");
+            return (_moderators?.Contains(username?.ToLower()) ?? false) || channelName.ToLower() == username;
         }
     }
 }
