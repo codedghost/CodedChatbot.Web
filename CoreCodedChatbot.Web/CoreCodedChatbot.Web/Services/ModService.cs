@@ -46,9 +46,6 @@ namespace CoreCodedChatbot.Web.Services
 
             try
             {
-                var subs = await _twitchApi.V5.Channels.GetAllSubscribersAsync(_configService.Get<string>("ChannelId"),
-                    _secretService.GetSecret<string>("ChatbotAccessToken"));
-                _twitchApi.Settings.Scopes.Add(AuthScopes.Helix_Moderation_Read);
                 var moderatorResponse =
                     await _twitchApi.Helix.Moderation.GetModeratorsAsync(_configService.Get<string>("ChannelId"),
                         accessToken: _secretService.GetSecret<string>("ChatbotAccessToken"));
@@ -56,7 +53,7 @@ namespace CoreCodedChatbot.Web.Services
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Could not access Twitch TMI resource.");
+                _logger.LogError(e, $"Could not access Twitch Helix API resource.");
                 errorCounter++;
 
                 if (errorCounter > 5)
