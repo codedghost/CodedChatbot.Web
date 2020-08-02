@@ -1,0 +1,36 @@
+﻿@model CoreCodedChatbot.Web.ViewModels.Quote.QuoteViewModel
+
+@{
+    ViewData["Title"] = "CodedGhost's Stream Quotes";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/quote.min.css" />
+}
+
+<h1>Stream Quotes</h1>
+
+<div class="row">
+    <div class="col-md-12">
+        @foreach (var quote in Model.UserSubmittedQuotes)
+        {
+            <div class="row">
+                <p class="quote-username">@quote.CreatedBy</p>
+            </div>
+            <div class="row">
+                <div class="col-md-8">
+                    <p class="quote-text">@quote.QuoteText</p>
+                </div>
+                <div class="col-md-4">
+                    <button type="button" class="btn btn-primary send-quote-button">Send</button>
+                    @if (quote.ShowEditOrDelete)
+                    {
+                        <button type="button" class="btn btn-warning edit-quote-button" onclick="editQuote(@quote.QuoteId)">Edit</button>
+                        <button type="button" class="btn btn-danger delete-quote-button" onclick="deleteQuote(@quote.QuoteId)">Delete</button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>

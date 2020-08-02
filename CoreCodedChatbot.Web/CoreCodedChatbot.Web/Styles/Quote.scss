@@ -1,0 +1,17 @@
+﻿p {
+    &.quote-username {
+        color: #daa520;
+    }
+
+    &.quote-text {
+        color: #bbbbbb;
+    }
+}
+
+button {
+    &.send-quote-button{}
+
+    &.edit-quote-button {}
+
+    &.delete-quote-button {}
+}
