@@ -14,18 +14,18 @@ namespace CoreCodedChatbot.Web.Controllers
 {
     public class ModerationController : Controller
     {
-        private readonly IChatterService _chatterService;
+        private readonly IModService _modService;
         private readonly IModerationApiClient _moderationApiClient;
         private readonly ISearchApiClient _searchApiClient;
         private readonly ILogger<ModerationController> _logger;
 
         public ModerationController(
-            IChatterService chatterService,
+            IModService modService,
             IModerationApiClient moderationApiClient,
             ISearchApiClient searchApiClient,
             ILogger<ModerationController> logger)
         {
-            _chatterService = chatterService;
+            _modService = modService;
             _moderationApiClient = moderationApiClient;
             _searchApiClient = searchApiClient;
             _logger = logger;
@@ -34,9 +34,7 @@ namespace CoreCodedChatbot.Web.Controllers
         [Authorize]
         public IActionResult TransferUser()
         {
-            var chattersModel = _chatterService.GetCurrentChatters();
-
-            if (!chattersModel?.IsUserMod(User.Identity.Name) ?? false)
+            if (!_modService.IsUserModerator(User.Identity.Name))
                 RedirectToAction("Index", "Home");
 
             return View(new TransferUserViewModel());
@@ -45,9 +43,7 @@ namespace CoreCodedChatbot.Web.Controllers
         [Authorize]
         public async Task<IActionResult> ProcessTransferUser(TransferUserViewModel request)
         {
-            var chattersModel = _chatterService.GetCurrentChatters();
-
-            if (!chattersModel?.IsUserMod(User.Identity.Name) ?? false)
+            if (!_modService.IsUserModerator(User.Identity.Name))
             {
                 ControllerContext.ModelState.AddModelError("TransferStatus", "You're not a moderator! How dare you!");
                 return View("TransferUser", request);
@@ -73,9 +69,7 @@ namespace CoreCodedChatbot.Web.Controllers
         [Authorize]
         public async Task<IActionResult> Search()
         {
-            var chattersModel = _chatterService.GetCurrentChatters();
-
-            if (!chattersModel?.IsUserMod(User.Identity.Name) ?? false)
+            if (!_modService.IsUserModerator(User.Identity.Name))
                 RedirectToAction("Index", "Home");
 
             var model = new SearchViewModel

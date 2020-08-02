@@ -10,25 +10,23 @@ namespace CoreCodedChatbot.Web.Components
     public class NavViewComponent : ViewComponent
     {
         private readonly IStreamStatusApiClient _streamStatusClient;
-        private readonly IChatterService _chatterService;
+        private readonly IModService _modService;
         private readonly IConfigService _configService;
 
         public NavViewComponent(
             IStreamStatusApiClient streamStatusClient, 
-            IChatterService chatterService,
+            IModService modService,
             IConfigService configService)
         {
             _streamStatusClient = streamStatusClient;
-            _chatterService = chatterService;
+            _modService = modService;
             _configService = configService;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var streamerChannel = _configService.Get<string>("StreamerChannel");
-
             var isUserMod = (HttpContext?.User?.Identity?.IsAuthenticated ?? false) &&
-                            _chatterService.GetCurrentChatters().IsUserMod(User.Identity.Name.ToLower());
+                            _modService.IsUserModerator(User.Identity.Name);
 
             // Get the current page so we can redirect the user back here after login/logout
             // TODO: Consider if the page we are returning to will attempt to auto login or anything similar

@@ -1,9 +1,6 @@
 ﻿using System;
 using CoreCodedChatbot.ApiClient;
 using CoreCodedChatbot.Config;
-using CoreCodedChatbot.Database;
-using CoreCodedChatbot.Database.Context;
-using CoreCodedChatbot.Database.Context.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 using Microsoft.AspNetCore.Builder;
@@ -15,7 +12,6 @@ using CoreCodedChatbot.Web.Interfaces;
 using CoreCodedChatbot.Web.SignalRHubs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 
 namespace CoreCodedChatbot.Web
@@ -58,7 +54,6 @@ namespace CoreCodedChatbot.Web
             //services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
             services.AddTwitchServices(configService, secretService)
-                .AddDbContextFactory()
                 .AddSignalRServices()
                 .AddApiClientServices();
                 //.AddChatbotPrintfulService();
@@ -73,11 +68,6 @@ namespace CoreCodedChatbot.Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
-            using (var context = (ChatbotContext)serviceProvider.GetService<IChatbotContextFactory>().Create())
-            {
-                context.Database.Migrate();
-            }
-
             if (env.IsDevelopment() || string.Equals(env.EnvironmentName, "Local", StringComparison.InvariantCultureIgnoreCase))
             {
                 app.UseBrowserLink();
@@ -121,8 +111,8 @@ namespace CoreCodedChatbot.Web
 
             var heartbeatService = serviceProvider.GetService<ISignalRHeartbeatService>();
             heartbeatService.NotifyClients();
-            var chatterService = serviceProvider.GetService<IChatterService>();
-            chatterService.UpdateChatters();
+            var chatterService = serviceProvider.GetService<IModService>();
+            chatterService.UpdateModList();
         }
     }
 }
