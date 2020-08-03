@@ -59,7 +59,7 @@ namespace CoreCodedChatbot.Web
                 //.AddChatbotPrintfulService();
 
             services.AddControllersWithViews();
-            services.AddRazorPages();
+            services.AddRazorPages().AddRazorRuntimeCompilation();
             services.AddSignalR();
 
             services.AddRouting();

@@ -1,0 +1,33 @@
+﻿@using System.Globalization
+@model CoreCodedChatbot.Web.ViewModels.Quote.ChildModels.UserSubmittedQuote
+
+
+<div id="@Model.QuoteId">
+    <div class="row">
+        <p class="quote-username">
+            @Model.CreatedBy
+            @if (Model.ShowEditOrDelete && !string.IsNullOrWhiteSpace(Model.EditedBy))
+            {
+                <text> (Edited by @Model.EditedBy at @Model.EditedAt.ToString("u", CultureInfo.InvariantCulture))</text>
+            }
+        </p>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <p id="@Model.QuoteId-Text" class="quote-text">@Model.QuoteText</p>
+            <div id="@Model.QuoteId-Input" hidden>
+                @Html.TextBox($"{Model.QuoteId}-EditBox", @Model.QuoteText, new { @class = "edit-quote", @onkeydown = $"onEditInputKey(event, {Model.QuoteId})" })
+                <button type="button" class="btn btn-primary edit-quote edit-ok" onclick="sendEditQuote(@Model.QuoteId)">Save</button>
+                <button type="button" class="btn btn-danger edit-quote edit-cancel" onclick="cancelEdit(@Model.QuoteId)">Cancel</button>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button type="button" class="btn btn-primary send-quote-button" onclick="sendQuote(@Model.QuoteId)">Send</button>
+            @if (Model.ShowEditOrDelete)
+            {
+                <button id="@Model.QuoteId-Edit" type="button" class="btn btn-warning edit-quote-button" onclick="editQuote(@Model.QuoteId)">Edit</button>
+                <button type="button" class="btn btn-danger delete-quote-button" onclick="deleteQuote(@Model.QuoteId)">Delete</button>
+            }
+        </div>
+    </div>
+</div>

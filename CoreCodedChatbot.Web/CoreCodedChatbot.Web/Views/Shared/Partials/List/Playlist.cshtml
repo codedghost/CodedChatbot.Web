@@ -3,12 +3,12 @@
 
 <div id="vipQueue" class="vipQueue">
     @{
-        Html.RenderPartial("Partials/List/VipList", Model.VipList);
+        await Html.RenderPartialAsync("Partials/List/VipList", Model.VipList);
     }
 </div>
 
 <div id="regularQueue" class="regularQueue">
     @{
-        Html.RenderPartial("Partials/List/RegularList", Model.RegularList);
+        await Html.RenderPartialAsync("Partials/List/RegularList", Model.RegularList);
     }
 </div>

@@ -6,25 +6,25 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/StreamList.css" />
+    <link rel="stylesheet" href="~/css/streamlist.min.css" />
 }
 
 <div id="modalContainer"></div>
 <br />
 
 @{
-    Html.RenderPartial("Partials/List/PlaylistToolsHeader", Model.TwitchUser);
+    await Html.RenderPartialAsync("Partials/List/PlaylistToolsHeader", Model.TwitchUser);
 }
 
 <div class="col-md-12">
     <div id="currentSong">
         @{
-            Html.RenderPartial("Partials/List/CurrentSong", Model.CurrentSong);
+            await Html.RenderPartialAsync("Partials/List/CurrentSong", Model.CurrentSong);
         }
     </div>
     <div class="queueWrapper">
         @{
-            Html.RenderPartial("Partials/List/Playlist", Model);
+            await Html.RenderPartialAsync("Partials/List/Playlist", Model);
         }
     </div>
 </div>

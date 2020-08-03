@@ -6,22 +6,59 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Styles\BugReport.scss" />
+    <None Remove="Styles\MainSite.scss" />
+    <None Remove="Styles\Quote.scss" />
+    <None Remove="Styles\StreamList.scss" />
+    <None Remove="Styles\TransferUser.scss" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Styles\BugReport.scss">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Styles\MainSite.scss">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Styles\Quote.scss">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Styles\StreamList.scss">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Styles\TransferUser.scss">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.Twitch" Version="3.1.1" />
-    <PackageReference Include="CoreCodedChatbot.ApiClient" Version="1.0.665" />
+    <PackageReference Include="CoreCodedChatbot.ApiClient" Version="1.0.706" />
     <PackageReference Include="CoreCodedChatbot.Config" Version="1.0.345" />
     <PackageReference Include="CoreCodedChatbot.Logging" Version="1.0.401" />
     <PackageReference Include="CoreCodedChatbot.Secrets" Version="1.0.568" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.3" />
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.2" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.3" />
     <PackageReference Include="PayPalCheckoutSdk" Version="1.0.3" />
     <PackageReference Include="PrintfulLib" Version="1.0.556" />
     <PackageReference Include="TwitchLib" Version="3.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\css\" />
+    <Folder Include="wwwroot\scripts\" />
   </ItemGroup>
 
 </Project>
