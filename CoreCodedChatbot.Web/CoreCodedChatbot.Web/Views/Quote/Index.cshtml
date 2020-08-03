@@ -11,26 +11,125 @@
 
 <h1>Stream Quotes</h1>
 
-<div class="row">
-    <div class="col-md-12">
-        @foreach (var quote in Model.UserSubmittedQuotes)
-        {
-            <div class="row">
-                <p class="quote-username">@quote.CreatedBy</p>
+@if (Model.IsMod)
+{
+    <div class="accordion" id="disabled-quotes-accordion">
+        <div class="card">
+            <div class="card-header" id="disabled-quotes-header">
+                <h2>
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#disabled-quotes" aria-expanded="false" aria-controls="disabled-quotes">
+                        Disabled Quotes
+                    </button>
+                </h2>
             </div>
-            <div class="row">
-                <div class="col-md-8">
-                    <p class="quote-text">@quote.QuoteText</p>
-                </div>
-                <div class="col-md-4">
-                    <button type="button" class="btn btn-primary send-quote-button">Send</button>
-                    @if (quote.ShowEditOrDelete)
+            
+            <div id="disabled-quotes" class="collapse" aria-labelledby="disabled-quotes-header" data-parent="#disabled-quotes-accordion">
+                <div class="card-body">
+                    @foreach (var quote in Model.UserSubmittedQuotes.Where(q => q.Disabled))
                     {
-                        <button type="button" class="btn btn-warning edit-quote-button" onclick="editQuote(@quote.QuoteId)">Edit</button>
-                        <button type="button" class="btn btn-danger delete-quote-button" onclick="deleteQuote(@quote.QuoteId)">Delete</button>
+                        @await Html.PartialAsync("QuoteRow", quote)
                     }
                 </div>
             </div>
+        </div>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-12">
+        @foreach (var quote in Model.UserSubmittedQuotes.Where(q => !q.Disabled))
+        {
+            @await Html.PartialAsync("QuoteRow", quote)
         }
     </div>
 </div>
+
+<script>
+    function onEditInputKey(e, quoteId) {
+    if (e.keyCode === 13) {
+        sendEditQuote(quoteId);
+    } else if (e.keyCode === 27) {
+        cancelEdit(quoteId);
+    }
+}
+
+function sendQuote(quoteId) {
+    var url = '@Url.Action("SendQuote", "Quote")';
+
+    sendRequest(url, quoteId, function () {
+        $(event.target).text("Done!");
+        $(event.target).attr("disabled", true);
+    }, function () {
+        $(event.target).text("Error - Try again");
+    });
+}
+
+function editQuote(quoteId) {
+    var editText = $("#" + quoteId.toString() + "-Text");
+    var editInput = $("#" + quoteId.toString() + "-Input");
+
+    $(editText).attr("hidden", true);
+    $(editInput).removeAttr("hidden");
+}
+
+function sendEditQuote(quoteId) {
+    var url = '@Url.Action("EditQuote", "Quote")';
+
+    var editText = $("#" + quoteId.toString() + "-Text");
+    var editInput = $("#" + quoteId.toString() + "-Input");
+    var editBox = $("[name=" + quoteId.toString() + "-EditBox]");
+
+    $(editText).removeAttr("hidden");
+    $(editInput).attr("hidden", true);
+
+    var editButton = $("#" + quoteId.toString() + "-Edit")[0];
+
+    sendRequest(url,
+        quoteId,
+        function () {
+            $(editButton).text("Done!");
+            $(editButton).attr("disabled", true);
+
+            $(editText).text(editBox[0].value);
+        },
+        function () {
+            $(editButton).text("Error - Try again");
+        },
+        editBox[0].value);
+}
+
+function cancelEdit(quoteId) {
+    var editText = $("#" + quoteId.toString() + "-Text");
+    var editInput = $("#" + quoteId.toString() + "-Input");
+    var editBox = $("[name=" + quoteId.toString() + "-EditBox]");
+
+    $(editText).removeAttr("hidden");
+    $(editInput).attr("hidden", true);
+
+    editBox[0].value = editText[0].innerText;
+}
+
+function deleteQuote(quoteId) {
+    var url = '@Url.Action("DeleteQuote", "Quote")';
+
+    sendRequest(url, quoteId, function () {
+        $("#" + quoteId.toString()).attr("hidden", true);
+    }, function () {
+        $(event.target).text("Error - Try again");
+    });
+}
+
+function sendRequest(url, quoteId, onSuccess, onError, editText = '') {
+    var data = JSON.stringify({ QuoteId: parseInt(quoteId), Text: editText });
+
+    $.ajax({
+        url: url,
+        type: "POST",
+        data: data,
+        contentType: "application/json",
+        success: onSuccess,
+        error: onError
+    });
+}
+</script>
+

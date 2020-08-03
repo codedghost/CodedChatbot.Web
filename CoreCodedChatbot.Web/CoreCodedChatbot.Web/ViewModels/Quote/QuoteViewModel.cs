@@ -6,5 +6,6 @@ namespace CoreCodedChatbot.Web.ViewModels.Quote
     public class QuoteViewModel
     {
         public List<UserSubmittedQuote> UserSubmittedQuotes { get; set; }
+        public bool IsMod { get; set; }
     }
 }

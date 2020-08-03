@@ -8,10 +8,31 @@
     }
 }
 
+input.edit-quote {
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
 button {
-    &.send-quote-button{}
+    &.edit-quote {
+        float: right;
 
-    &.edit-quote-button {}
+        &.edit-ok {
+            margin-left: .5rem;
+        }
 
-    &.delete-quote-button {}
+        &.edit-cancel {
+
+        }
+    }
+}
+
+div.accordion {
+    div.card {
+        background-color: #444;
+
+        div.card-header {
+            background-color: #333;
+        }
+    }
 }
