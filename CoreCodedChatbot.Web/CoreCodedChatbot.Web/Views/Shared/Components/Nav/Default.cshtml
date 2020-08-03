@@ -22,21 +22,24 @@
                             @Html.ActionLink("Library", "Library", "Chatbot", new { }, new { @class = "dropdown-item" })
                             @Html.ActionLink("Practice Song Request", "RequestSong", "Development", new { }, new { @class = "dropdown-item" })
                             @Html.ActionLink("Synonym Request", "Synonym", "Chatbot", new { }, new { @class = "dropdown-item" })
-                            @Html.ActionLink("Quotes", "Index", "Quote", new { }, new { @class = "dropdown-item" })
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                @Html.ActionLink("Quotes", "Index", "Quote", new { }, new { @class = "dropdown-item" })
+                            }
                         </div>
                     </li>
                 }
                 @if (Model.UserIsMod)
                 {
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="modDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="False">
-                    Moderation
-                </a>
-                <div class="dropdown-menu" aria-labelledby="modDropdown">
-                    @Html.ActionLink("Transfer User Account", "TransferUser", "Moderation", new { }, new { @class = "dropdown-item" })
-                    @Html.ActionLink("Search", "Search", "Moderation", new {}, new {@class = "dropdown-item"})
-                </div>
-            </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="modDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="False">
+                            Moderation
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="modDropdown">
+                            @Html.ActionLink("Transfer User Account", "TransferUser", "Moderation", new {}, new {@class = "dropdown-item"})
+                            @Html.ActionLink("Search", "Search", "Moderation", new {}, new {@class = "dropdown-item"})
+                        </div>
+                    </li>
                 }
                 <li class="nav-item">
                     @Html.ActionLink("Socials", "Index", "Socials", new {}, new {@class = "nav-link"})
