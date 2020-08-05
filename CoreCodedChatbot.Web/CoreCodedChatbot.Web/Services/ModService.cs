@@ -64,7 +64,8 @@ namespace CoreCodedChatbot.Web.Services
         public bool IsUserModerator(string username)
         {
             var channelName = _configService.Get<string>("StreamerChannel");
-            return (_moderators?.Contains(username?.ToLower()) ?? false) || channelName.ToLower() == username;
+            return (_moderators?.Contains(username?.ToLower()) ?? false) ||
+                   string.Equals(channelName, username, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }
