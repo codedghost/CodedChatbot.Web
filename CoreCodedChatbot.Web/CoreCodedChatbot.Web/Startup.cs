@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using CoreCodedChatbot.Logging;
 using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.Interfaces;
+using CoreCodedChatbot.Web.Interfaces.Services;
 using CoreCodedChatbot.Web.SignalRHubs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -48,12 +49,12 @@ namespace CoreCodedChatbot.Web
 
             services
                 .AddChatbotNLog(secretService)
-                .AddChatbotWebAuth(configService, secretService);
+                .AddChatbotWebAuth();
 
             //services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             //services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
-            services.AddTwitchServices(configService, secretService)
+            services.AddTwitchServices()
                 .AddSignalRServices()
                 .AddApiClientServices();
                 //.AddChatbotPrintfulService();

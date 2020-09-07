@@ -1,6 +1,4 @@
-﻿using CoreCodedChatbot.Web.ViewModels.Playlist;
-
-namespace CoreCodedChatbot.Web.Interfaces
+﻿namespace CoreCodedChatbot.Web.Interfaces.Services
 {
     public interface IModService
     {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using CoreCodedChatbot.Web.Interfaces;
+using CoreCodedChatbot.Web.Interfaces.Services;
 using CoreCodedChatbot.Web.SignalRHubs;
 using Microsoft.AspNetCore.SignalR;
 
