@@ -1,4 +1,5 @@
-﻿
+﻿@model CoreCodedChatbot.Web.ViewModels.Home.HomepageViewModel
+
 @{
     ViewBag.Title = "CodedGhost";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -9,9 +10,10 @@
         <h1 class="welcomeHeadline">Welcome to the homepage for CodedGhost!</h1>
     </div>
 </div>
+
 <div class="row ">
     <iframe
-        src="https://player.twitch.tv/?channel=codedghost2"
+        src="https://player.twitch.tv/?channel=@Model.PreviewTwitchChannelName&parent=@Model.Domain"
         height="450"
         width="800"
         scrolling="no"
