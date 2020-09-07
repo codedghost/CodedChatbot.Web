@@ -4,6 +4,7 @@ using CoreCodedChatbot.ApiClient.ApiClients;
 using CoreCodedChatbot.ApiContract.RequestModels.Moderation;
 using CoreCodedChatbot.ApiContract.RequestModels.Search;
 using CoreCodedChatbot.Web.Interfaces;
+using CoreCodedChatbot.Web.Interfaces.Services;
 using CoreCodedChatbot.Web.Models;
 using CoreCodedChatbot.Web.ViewModels.Moderation;
 using Microsoft.AspNetCore.Authorization;

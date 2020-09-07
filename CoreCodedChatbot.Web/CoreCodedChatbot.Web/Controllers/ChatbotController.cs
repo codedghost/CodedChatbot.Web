@@ -11,6 +11,7 @@ using CoreCodedChatbot.ApiContract.RequestModels.Search;
 using CoreCodedChatbot.ApiContract.RequestModels.Vip;
 using CoreCodedChatbot.ApiContract.ResponseModels.Playlist.ChildModels;
 using CoreCodedChatbot.Web.Interfaces;
+using CoreCodedChatbot.Web.Interfaces.Services;
 using CoreCodedChatbot.Web.ViewModels.AjaxRequestModels;
 using CoreCodedChatbot.Web.ViewModels.Chatbot;
 using CoreCodedChatbot.Web.ViewModels.Playlist;

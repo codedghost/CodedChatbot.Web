@@ -6,6 +6,8 @@ using System.Threading;
 using CoreCodedChatbot.Config;
 using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.Interfaces;
+using CoreCodedChatbot.Web.Interfaces.Factories;
+using CoreCodedChatbot.Web.Interfaces.Services;
 using CoreCodedChatbot.Web.ViewModels.Playlist;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -18,7 +20,7 @@ namespace CoreCodedChatbot.Web.Services
     {
         private readonly IConfigService _configService;
         private readonly ISecretService _secretService;
-        private readonly TwitchAPI _twitchApi;
+        private readonly ITwitchApiFactory _twitchApiFactory;
         private readonly ILogger<ModService> _logger;
         private ChatViewersModel Chatters { get; set; }
 
@@ -29,13 +31,13 @@ namespace CoreCodedChatbot.Web.Services
         public ModService(
             IConfigService configService,
             ISecretService secretService,
-            TwitchAPI _twitchApi,
+            ITwitchApiFactory twitchApiFactory,
             ILogger<ModService> logger
         )
         {
             _configService = configService;
             _secretService = secretService;
-            this._twitchApi = _twitchApi;
+            _twitchApiFactory = twitchApiFactory;
             _logger = logger;
             chatterTimer = new Timer((x) => { UpdateModList(); }, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
         }
@@ -46,8 +48,9 @@ namespace CoreCodedChatbot.Web.Services
 
             try
             {
+                var twitchApi = _twitchApiFactory.Get();
                 var moderatorResponse =
-                    await _twitchApi.Helix.Moderation.GetModeratorsAsync(_configService.Get<string>("ChannelId"),
+                    await twitchApi.Helix.Moderation.GetModeratorsAsync(_configService.Get<string>("ChannelId"),
                         accessToken: _secretService.GetSecret<string>("ChatbotAccessToken"));
                 _moderators = moderatorResponse.Data.Select(m => m.UserName.ToLower()).ToArray();
             }

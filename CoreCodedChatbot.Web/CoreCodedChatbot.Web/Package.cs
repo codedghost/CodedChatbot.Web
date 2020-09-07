@@ -1,9 +1,13 @@
 ﻿using AspNet.Security.OAuth.Twitch;
 using CoreCodedChatbot.Config;
 using CoreCodedChatbot.Secrets;
+using CoreCodedChatbot.Web.Factories;
 using CoreCodedChatbot.Web.Interfaces;
+using CoreCodedChatbot.Web.Interfaces.Factories;
+using CoreCodedChatbot.Web.Interfaces.Services;
 using CoreCodedChatbot.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using TwitchLib.Api;
@@ -15,9 +19,7 @@ namespace CoreCodedChatbot.Web
     public static class Package
     {
         public static IServiceCollection AddChatbotWebAuth(
-            this IServiceCollection services, 
-            IConfigService configService, 
-            ISecretService secretService
+            this IServiceCollection services
             )
         {
             services.AddAuthentication(op =>
@@ -27,7 +29,10 @@ namespace CoreCodedChatbot.Web
                     op.DefaultChallengeScheme = TwitchAuthenticationDefaults.AuthenticationScheme;
                 })
                 .AddCookie()
-                .AddTwitch(options =>
+                .AddTwitch();
+
+            services.AddOptions<TwitchAuthenticationOptions>(TwitchAuthenticationDefaults.AuthenticationScheme)
+                .Configure<ISecretService, IConfigService>((options, secretService, configService) =>
                 {
                     options.ClientId = secretService.GetSecret<string>("TwitchWebAppClientId");
                     options.ClientSecret = secretService.GetSecret<string>("TwitchWebAppClientSecret");
@@ -46,23 +51,11 @@ namespace CoreCodedChatbot.Web
         }
 
         public static IServiceCollection AddTwitchServices(
-            this IServiceCollection services,
-            IConfigService configService,
-            ISecretService secretService
+            this IServiceCollection services
         )
         {
-            var creds = new ConnectionCredentials(configService.Get<string>("ChatbotNick"), secretService.GetSecret<string>("ChatbotPass"));
-            var client = new TwitchClient();
-            client.Initialize(creds, configService.Get<string>("StreamerChannel"));
-            client.Connect();
-
-            var api = new TwitchAPI();
-            api.Settings.ClientId = secretService.GetSecret<string>("ChatbotAccessClientId");
-            api.Settings.AccessToken = secretService.GetSecret<string>("ChatbotAccessToken");
-
-            services.AddSingleton(client);
-            services.AddSingleton(api);
-
+            services.AddSingleton<ITwitchApiFactory, TwitchApiFactory>();
+            services.AddSingleton<ITwitchClientFactory, TwitchClientFactory>();
             services.AddSingleton<IModService, ModService>();
 
             return services;

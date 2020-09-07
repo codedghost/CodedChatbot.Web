@@ -6,6 +6,8 @@ using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
 using CoreCodedChatbot.ApiContract.RequestModels.Quotes;
 using CoreCodedChatbot.Config;
 using CoreCodedChatbot.Web.Interfaces;
+using CoreCodedChatbot.Web.Interfaces.Factories;
+using CoreCodedChatbot.Web.Interfaces.Services;
 using CoreCodedChatbot.Web.ViewModels.Quote;
 using CoreCodedChatbot.Web.ViewModels.Quote.ChildModels;
 using Microsoft.AspNetCore.Authorization;
@@ -20,18 +22,18 @@ namespace CoreCodedChatbot.Web.Controllers
         private readonly IQuoteApiClient _quoteApiClient;
         private readonly IModService _modService;
         private readonly IConfigService _configService;
-        private readonly TwitchClient _client;
+        private readonly ITwitchClientFactory _twitchClientFactory;
 
         public QuoteController(
             IQuoteApiClient quoteApiClient, 
             IModService modService,
             IConfigService configService,
-            TwitchClient client)
+            ITwitchClientFactory twitchClientFactory)
         {
             _quoteApiClient = quoteApiClient;
             _modService = modService;
             _configService = configService;
-            _client = client;
+            _twitchClientFactory = twitchClientFactory;
         }
 
         public async Task<IActionResult> Index()
@@ -77,7 +79,8 @@ namespace CoreCodedChatbot.Web.Controllers
                         QuoteId = quoteActionModel.QuoteId
                     });
 
-                    _client.SendMessage(_configService.Get<string>("StreamerChannel"),
+                    var client = _twitchClientFactory.GetClient();
+                    client.SendMessage(_configService.Get<string>("StreamerChannel"),
                         $"Hey @{HttpContext.User.Identity.Name}, Here is Quote {quote.Quote.QuoteId}: {quote.Quote.QuoteText}");
                     return Ok();
                 }
