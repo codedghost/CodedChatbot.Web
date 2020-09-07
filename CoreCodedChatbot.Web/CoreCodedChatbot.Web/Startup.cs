@@ -44,11 +44,8 @@ namespace CoreCodedChatbot.Web
             //services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
             //.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
 
-            var provider = services.BuildServiceProvider();
-            var secretService = provider.GetService<ISecretService>();
-
             services
-                .AddChatbotNLog(secretService)
+                .AddChatbotNLog()
                 .AddChatbotWebAuth();
 
             //services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
