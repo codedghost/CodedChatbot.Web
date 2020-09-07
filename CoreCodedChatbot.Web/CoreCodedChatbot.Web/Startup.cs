@@ -1,4 +1,5 @@
 ﻿using System;
+using CodedGhost.Config;
 using CoreCodedChatbot.ApiClient;
 using CoreCodedChatbot.Config;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,7 +9,6 @@ using Microsoft.AspNetCore.Hosting;
 
 using CoreCodedChatbot.Logging;
 using CoreCodedChatbot.Secrets;
-using CoreCodedChatbot.Web.Interfaces;
 using CoreCodedChatbot.Web.Interfaces.Services;
 using CoreCodedChatbot.Web.SignalRHubs;
 using Microsoft.AspNetCore.Http;

@@ -2,11 +2,10 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using CodedChatbot.TwitchFactories.Interfaces;
 using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
 using CoreCodedChatbot.ApiContract.RequestModels.Quotes;
 using CoreCodedChatbot.Config;
-using CoreCodedChatbot.Web.Interfaces;
-using CoreCodedChatbot.Web.Interfaces.Factories;
 using CoreCodedChatbot.Web.Interfaces.Services;
 using CoreCodedChatbot.Web.ViewModels.Quote;
 using CoreCodedChatbot.Web.ViewModels.Quote.ChildModels;
@@ -79,7 +78,7 @@ namespace CoreCodedChatbot.Web.Controllers
                         QuoteId = quoteActionModel.QuoteId
                     });
 
-                    var client = _twitchClientFactory.GetClient();
+                    var client = _twitchClientFactory.Get();
                     client.SendMessage(_configService.Get<string>("StreamerChannel"),
                         $"Hey @{HttpContext.User.Identity.Name}, Here is Quote {quote.Quote.QuoteId}: {quote.Quote.QuoteText}");
                     return Ok();

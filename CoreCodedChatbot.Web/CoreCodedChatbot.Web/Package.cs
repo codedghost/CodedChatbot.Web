@@ -1,9 +1,7 @@
 ﻿using AspNet.Security.OAuth.Twitch;
+using CodedChatbot.TwitchFactories;
 using CoreCodedChatbot.Config;
 using CoreCodedChatbot.Secrets;
-using CoreCodedChatbot.Web.Factories;
-using CoreCodedChatbot.Web.Interfaces;
-using CoreCodedChatbot.Web.Interfaces.Factories;
 using CoreCodedChatbot.Web.Interfaces.Services;
 using CoreCodedChatbot.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -54,8 +52,7 @@ namespace CoreCodedChatbot.Web
             this IServiceCollection services
         )
         {
-            services.AddSingleton<ITwitchApiFactory, TwitchApiFactory>();
-            services.AddSingleton<ITwitchClientFactory, TwitchClientFactory>();
+            services.AddTwitchFactories();
             services.AddSingleton<IModService, ModService>();
 
             return services;
