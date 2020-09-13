@@ -107,6 +107,7 @@ namespace CoreCodedChatbot.Web.Controllers
                 {
                     SongId = result.SongId,
                     SongName = result.SongName,
+                    CharterUsername = result.CharterUsername,
                     SongArtist = result.ArtistName,
                     IsOfficial = result.IsOfficial,
                     IsDownloaded = result.IsDownloaded,
