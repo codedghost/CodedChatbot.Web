@@ -1,4 +1,5 @@
-﻿@model CoreCodedChatbot.Web.ViewModels.Moderation.TransferUserViewModel
+﻿@using CoreCodedChatbot.Web.ViewModels.Shared
+@model CoreCodedChatbot.Web.ViewModels.Moderation.TransferUserViewModel
 @{
     ViewData["Title"] = "Transfer User Account";
     Layout = "_Layout";
@@ -8,13 +9,28 @@
     <link rel="stylesheet" href="~/css/transferuser.min.css"/>
 }
 
+
+@await Component.InvokeAsync("ConfirmationDialog", new ConfirmationDialogViewModel
+{
+    ModalId = "TransferUser",
+    ModalTitle = $"Transfer data?",
+    CloseButtonText = "Cancel",
+    ConfirmationButtonText = "Transfer",
+    BodyText = "Are you sure you want to transfer this user's data?",
+    CloseFunctionName = "CancelModalAction",
+    CloseButtonAction = "function CancelModalAction() { }",
+    ConfirmFunctionName = "ConfirmModalAction(event)",
+    ConfirmationButtonAction =
+            "  function ConfirmModalAction(event) {debugger;$('#TransferUser-ConfirmButton').attr('disabled', true);$('[name = \"TransferForm\"]')[0].submit();}"
+})
+
 <div class="jumbotron">
     <h2>Transfer User Account</h2>
     <p style="color: red">@Html.ValidationMessage("TransferStatus")</p>
 </div>
 
 @{
-        Html.BeginForm("ProcessTransferUser", "Moderation", new {@name="TransferForm" });
+    Html.BeginForm("ProcessTransferUser", "Moderation", new {}, FormMethod.Post, null, new {@name = "TransferForm"});
 }
 
 <div class="form-group">
@@ -29,16 +45,8 @@
 </div>
 <br/>
 <div class="row">
-    <button id="submitButton" class="btn btn-primary" type="submit" onclick="disableButton(event)">Submit</button>
+    <button id="submitButton" class="btn btn-primary" type="button" data-toggle="modal" data-target="#TransferUser">Submit</button>
 </div>
 @{
     Html.EndForm();
 }
-
-<script>
-    function disableButton(event) {
-        debugger;
-        $("#submitButton").attr("disabled", true);
-        event.target.form.submit();
-    } 
-</script>
