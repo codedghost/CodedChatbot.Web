@@ -95,7 +95,7 @@ namespace CoreCodedChatbot.Web
             app.UseAuthorization();
 
             app.UseCors(builder => builder.WithOrigins(new[]
-                    {"https://codedghost.com", "https://www.codedghost.com", "https://api.codedghost.com"})
+                    {"https://codedghost.com", "https://www.codedghost.com", "https://api.codedghost.com", "http://localhost:3000"})
                 .AllowAnyHeader()
                 .WithMethods("GET", "POST")
                 .AllowCredentials());
