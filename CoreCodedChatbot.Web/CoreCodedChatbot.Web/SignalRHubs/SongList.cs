@@ -1,6 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using CoreCodedChatbot.ApiContract.SharedExternalRequestModels;
 using CoreCodedChatbot.ApiContract.SignalRHubModels;
 using CoreCodedChatbot.Secrets;
+using CoreCodedChatbot.Web.Services;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
@@ -9,14 +12,17 @@ namespace CoreCodedChatbot.Web.SignalRHubs
     public class SongList : Hub
     {
         private readonly ISecretService _secretService;
+        private readonly IReactUiService _reactUiService;
         private readonly ILogger<SongList> _logger;
 
         public SongList(
-            ISecretService secretService, 
+            ISecretService secretService,
+            IReactUiService reactUiService,
             ILogger<SongList> logger
         )
         {
             _secretService = secretService;
+            _reactUiService = reactUiService;
             _logger = logger;
         }
 
@@ -34,6 +40,24 @@ namespace CoreCodedChatbot.Web.SignalRHubs
                 var regularRequests = data.regularRequests;
                 var vipRequests = data.vipRequests;
                 await this.Clients.All.SendCoreAsync("SendAll", new object[] { currentSong, regularRequests, vipRequests });
+            }
+        }
+
+        public async Task UpdateClients(SongListHubModel data)
+        {
+            if (IsRequestAuthenticated(data.psk))
+            {
+                var currentSong = _reactUiService.FormatUiModel(data.currentSong, true,
+                    false);
+
+                var regularQueue =
+                    data.regularRequests.Where(r => r.songRequestId != currentSong.SongId).Select(r =>
+                        _reactUiService.FormatUiModel(r, false, true));
+
+                var vipQueue =
+                    data.vipRequests.Where(r => r.songRequestId != currentSong.SongId).Select(r => _reactUiService.FormatUiModel(r, false, false));
+
+                await Clients.All.SendCoreAsync("UpdateClients", new object[] {currentSong, regularQueue, vipQueue});
             }
         }
 

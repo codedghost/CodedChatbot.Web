@@ -53,7 +53,8 @@ namespace CoreCodedChatbot.Web
 
             services.AddTwitchServices()
                 .AddSignalRServices()
-                .AddApiClientServices();
+                .AddApiClientServices()
+                .AddServices();
                 //.AddChatbotPrintfulService();
 
             services.AddControllersWithViews();
@@ -109,8 +110,6 @@ namespace CoreCodedChatbot.Web
 
             var heartbeatService = serviceProvider.GetService<ISignalRHeartbeatService>();
             heartbeatService.NotifyClients();
-            var chatterService = serviceProvider.GetService<IModService>();
-            chatterService.UpdateModList();
         }
     }
 }

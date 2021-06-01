@@ -6,6 +6,7 @@ using CodedChatbot.TwitchFactories.Interfaces;
 using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
 using CoreCodedChatbot.ApiContract.RequestModels.Quotes;
 using CoreCodedChatbot.Config;
+using CoreCodedChatbot.Web.Extensions;
 using CoreCodedChatbot.Web.Interfaces.Services;
 using CoreCodedChatbot.Web.ViewModels.Quote;
 using CoreCodedChatbot.Web.ViewModels.Quote.ChildModels;
@@ -19,18 +20,15 @@ namespace CoreCodedChatbot.Web.Controllers
     public class QuoteController : Controller
     {
         private readonly IQuoteApiClient _quoteApiClient;
-        private readonly IModService _modService;
         private readonly IConfigService _configService;
         private readonly ITwitchClientFactory _twitchClientFactory;
 
         public QuoteController(
-            IQuoteApiClient quoteApiClient, 
-            IModService modService,
+            IQuoteApiClient quoteApiClient,
             IConfigService configService,
             ITwitchClientFactory twitchClientFactory)
         {
             _quoteApiClient = quoteApiClient;
-            _modService = modService;
             _configService = configService;
             _twitchClientFactory = twitchClientFactory;
         }
@@ -42,7 +40,7 @@ namespace CoreCodedChatbot.Web.Controllers
 
             if (User.Identity.IsAuthenticated)
             {
-                isMod = _modService.IsUserModerator(User.Identity.Name);
+                isMod = User.Identities.IsMod();
             }
 
             var userSubmittedQuotes = quotes.Quotes.Select(q => new UserSubmittedQuote
@@ -102,7 +100,7 @@ namespace CoreCodedChatbot.Web.Controllers
                         QuoteId = quoteActionModel.QuoteId,
                         QuoteText = quoteActionModel.Text,
                         Username = HttpContext.User.Identity.Name,
-                        IsMod = _modService.IsUserModerator(HttpContext.User.Identity.Name)
+                        IsMod = User.Identities.IsMod()
                     });
                 }
             } catch (Exception)
@@ -127,7 +125,7 @@ namespace CoreCodedChatbot.Web.Controllers
                     {
                         QuoteId = quoteActionModel.QuoteId,
                         Username = HttpContext.User.Identity.Name,
-                        IsMod = _modService.IsUserModerator(HttpContext.User.Identity.Name)
+                        IsMod = User.Identities.IsMod()
                     });
                 }
             }
