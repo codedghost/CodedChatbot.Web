@@ -8,6 +8,8 @@ namespace CoreCodedChatbot.Web.Services
     {
         public SongRequest FormatUiModel(PlaylistItem item, bool isCurrent, bool isRegularQueue)
         {
+            if (item == null) return null;
+
             return new SongRequest
             {
                 SongId = item.songRequestId,
