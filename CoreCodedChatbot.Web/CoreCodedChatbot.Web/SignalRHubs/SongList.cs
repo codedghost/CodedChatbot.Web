@@ -51,11 +51,11 @@ namespace CoreCodedChatbot.Web.SignalRHubs
                     false);
 
                 var regularQueue =
-                    data.regularRequests.Where(r => r.songRequestId != currentSong.SongId).Select(r =>
+                    data.regularRequests.Where(r => r.songRequestId != (currentSong?.SongId ?? 0)).Select(r =>
                         _reactUiService.FormatUiModel(r, false, true));
 
                 var vipQueue =
-                    data.vipRequests.Where(r => r.songRequestId != currentSong.SongId).Select(r => _reactUiService.FormatUiModel(r, false, false));
+                    data.vipRequests.Where(r => r.songRequestId != (currentSong?.SongId ?? 0)).Select(r => _reactUiService.FormatUiModel(r, false, false));
 
                 await Clients.All.SendCoreAsync("UpdateClients", new object[] {currentSong, regularQueue, vipQueue});
             }
