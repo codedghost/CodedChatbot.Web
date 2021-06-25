@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CoreCodedChatbot.ApiClient.ApiClients;
+using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
 using CoreCodedChatbot.ApiContract.RequestModels.Moderation;
 using CoreCodedChatbot.ApiContract.RequestModels.Search;
+using CoreCodedChatbot.ApiContract.RequestModels.Vip;
+using CoreCodedChatbot.Web.Extensions;
 using CoreCodedChatbot.Web.Interfaces;
 using CoreCodedChatbot.Web.Interfaces.Services;
 using CoreCodedChatbot.Web.Models;
@@ -15,27 +18,27 @@ namespace CoreCodedChatbot.Web.Controllers
 {
     public class ModerationController : Controller
     {
-        private readonly IModService _modService;
         private readonly IModerationApiClient _moderationApiClient;
         private readonly ISearchApiClient _searchApiClient;
+        private readonly IVipApiClient _vipApiClient;
         private readonly ILogger<ModerationController> _logger;
 
         public ModerationController(
-            IModService modService,
             IModerationApiClient moderationApiClient,
             ISearchApiClient searchApiClient,
+            IVipApiClient vipApiClient,
             ILogger<ModerationController> logger)
         {
-            _modService = modService;
             _moderationApiClient = moderationApiClient;
             _searchApiClient = searchApiClient;
+            _vipApiClient = vipApiClient;
             _logger = logger;
         }
 
         [Authorize]
         public IActionResult TransferUser()
         {
-            if (!_modService.IsUserModerator(User.Identity.Name))
+            if (!User.Identities.IsMod())
                 RedirectToAction("Index", "Home");
 
             return View(new TransferUserViewModel());
@@ -44,7 +47,7 @@ namespace CoreCodedChatbot.Web.Controllers
         [Authorize]
         public async Task<IActionResult> ProcessTransferUser(TransferUserViewModel request)
         {
-            if (!_modService.IsUserModerator(User.Identity.Name))
+            if (!User.Identities.IsMod())
             {
                 ControllerContext.ModelState.AddModelError("TransferStatus", "You're not a moderator! How dare you!");
                 return View("TransferUser", request);
@@ -70,7 +73,7 @@ namespace CoreCodedChatbot.Web.Controllers
         [Authorize]
         public async Task<IActionResult> Search()
         {
-            if (!_modService.IsUserModerator(User.Identity.Name))
+            if (!User.Identities.IsMod())
                 RedirectToAction("Index", "Home");
 
             var model = new SearchViewModel
@@ -138,6 +141,24 @@ namespace CoreCodedChatbot.Web.Controllers
                 return BadRequest();
 
             return Ok();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAuthBaseModel()
+        {
+            if (!User.Identity.IsAuthenticated) return null;
+
+            var vipCount = await _vipApiClient.GetUserVipCount(new GetUserVipCountRequest
+            {
+                Username = User.Identity.Name
+            }).ConfigureAwait(false);
+
+            return Json(new TwitchAuthBaseModel
+            {
+                Username = User.Identity.Name,
+                IsModerator = User.Identities.IsMod(),
+                Vips = vipCount.Vips
+            });
         }
     }
 }

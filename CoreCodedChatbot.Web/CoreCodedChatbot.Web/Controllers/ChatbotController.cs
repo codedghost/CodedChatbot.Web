@@ -10,6 +10,7 @@ using CoreCodedChatbot.ApiContract.RequestModels.Playlist;
 using CoreCodedChatbot.ApiContract.RequestModels.Search;
 using CoreCodedChatbot.ApiContract.RequestModels.Vip;
 using CoreCodedChatbot.ApiContract.ResponseModels.Playlist.ChildModels;
+using CoreCodedChatbot.Web.Extensions;
 using CoreCodedChatbot.Web.Interfaces;
 using CoreCodedChatbot.Web.Interfaces.Services;
 using CoreCodedChatbot.Web.ViewModels.AjaxRequestModels;
@@ -26,20 +27,17 @@ namespace CoreCodedChatbot.Web.Controllers
 {
     public class ChatbotController : Controller
     {
-        private readonly IModService _modService;
         private readonly IPlaylistApiClient _playlistApiClient;
         private readonly IVipApiClient _vipApiClient;
         private readonly ISearchApiClient _searchApiClient;
         private readonly ILogger<ChatbotController> _logger;
 
         public ChatbotController(
-            IModService modService,
             IPlaylistApiClient playlistApiClient,
             IVipApiClient vipApiClient,
             ISearchApiClient searchApiClient,
             ILogger<ChatbotController> logger)
         {
-            this._modService = modService;
             _playlistApiClient = playlistApiClient;
             _vipApiClient = vipApiClient;
             _searchApiClient = searchApiClient;
@@ -101,7 +99,7 @@ namespace CoreCodedChatbot.Web.Controllers
                 twitchUser = new LoggedInTwitchUser
                 {
                     Username = username,
-                    IsMod = _modService.IsUserModerator(username),
+                    IsMod = User.Identities.IsMod(),
                     Vips = userVips?.Vips ?? 0
                 };
 
@@ -161,7 +159,7 @@ namespace CoreCodedChatbot.Web.Controllers
                     var twitchUser = new LoggedInTwitchUser
                     {
                         Username = username,
-                        IsMod = _modService.IsUserModerator(username)
+                        IsMod = User.Identities.IsMod()
                     };
 
                     ViewBag.UserIsMod = twitchUser?.IsMod ?? false;
@@ -198,7 +196,7 @@ namespace CoreCodedChatbot.Web.Controllers
                     var twitchUser = new LoggedInTwitchUser
                         {
                             Username = username,
-                            IsMod = _modService.IsUserModerator(username)
+                            IsMod = User.Identities.IsMod()
                     };
 
                     ViewBag.UserIsMod = twitchUser?.IsMod ?? false;
@@ -269,7 +267,7 @@ namespace CoreCodedChatbot.Web.Controllers
                     var twitchUser = new LoggedInTwitchUser
                         {
                             Username = username,
-                            IsMod = _modService.IsUserModerator(username)
+                            IsMod = User.Identities.IsMod()
                     };
                     ViewBag.UserIsMod = twitchUser?.IsMod ?? false;
 
@@ -376,7 +374,7 @@ namespace CoreCodedChatbot.Web.Controllers
             {
                 var request = _playlistApiClient.GetRequestById(int.Parse(songId)).Result.Request;
 
-                if (_modService.IsUserModerator(User.Identity.Name) ||
+                if (User.Identities.IsMod() ||
                     string.Equals(User.Identity.Name, request.songRequester))
                 {
                     if (_playlistApiClient.ArchiveRequestById(int.Parse(songId)).Result)
@@ -392,7 +390,7 @@ namespace CoreCodedChatbot.Web.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                if (_modService.IsUserModerator(User.Identity.Name))
+                if (User.Identities.IsMod())
                 {
                     try
                     {
@@ -482,7 +480,7 @@ namespace CoreCodedChatbot.Web.Controllers
                     IsVip = requestData.IsVip,
                     IsSuperVip = requestData.IsSuperVip,
                     Username = User.Identity.Name.ToLower(),
-                    IsMod = _modService.IsUserModerator(User.Identity.Name)
+                    IsMod = User.Identities.IsMod()
                 };
 
                 var editRequestResult =
@@ -712,7 +710,7 @@ namespace CoreCodedChatbot.Web.Controllers
                 var twitchUser = new LoggedInTwitchUser
                 {
                     Username = username,
-                    IsMod = _modService.IsUserModerator(username)
+                    IsMod = User.Identities.IsMod()
                 };
 
                 ViewBag.UserIsMod = twitchUser?.IsMod ?? false;
