@@ -39,11 +39,11 @@ namespace CoreCodedChatbot.Web.Controllers
                 false);
 
             var regularQueue =
-                allCurrentSongRequests.RegularList.Where(r => r.songRequestId != currentSong.SongId).Select(r =>
+                allCurrentSongRequests.RegularList.Where(r => r.songRequestId != (currentSong?.SongId ?? 0)).Select(r =>
                     _reactUiService.FormatUiModel(r, false, true));
 
             var vipQueue =
-                allCurrentSongRequests.VipList.Where(r => r.songRequestId != currentSong.SongId).Select(r => _reactUiService.FormatUiModel(r, false, false));
+                allCurrentSongRequests.VipList.Where(r => r.songRequestId != (currentSong?.SongId ?? 0)).Select(r => _reactUiService.FormatUiModel(r, false, false));
 
             return Json(new UiPlaylistStateModel
             {
