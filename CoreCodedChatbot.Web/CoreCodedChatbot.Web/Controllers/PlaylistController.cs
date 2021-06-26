@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
@@ -34,6 +35,16 @@ namespace CoreCodedChatbot.Web.Controllers
         public async Task<IActionResult> GetPlaylist()
         {
             var allCurrentSongRequests = await _playlistApiClient.GetAllCurrentSongRequests().ConfigureAwait(false);
+
+            if (allCurrentSongRequests == null)
+            {
+                return Json(new UiPlaylistStateModel
+                {
+                    CurrentSong = null,
+                    RegularQueue = new List<SongRequest>(),
+                    VipQueue = new List<SongRequest>()
+                });
+            }
 
             var currentSong = _reactUiService.FormatUiModel(allCurrentSongRequests.CurrentSong, true,
                 false);
