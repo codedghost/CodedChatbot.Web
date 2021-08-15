@@ -1,7 +1,10 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
 using CoreCodedChatbot.ApiContract.SharedExternalRequestModels;
 using CoreCodedChatbot.ApiContract.SignalRHubModels;
+using CoreCodedChatbot.ApiContract.SignalRHubModels.Website;
+using CoreCodedChatbot.ApiContract.SignalRHubModels.Website.ClientSpecific;
 using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.Services;
 using Microsoft.AspNetCore.SignalR;
@@ -9,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CoreCodedChatbot.Web.SignalRHubs
 {
-    public class SongList : Hub
+    public class SongList : CGHub
     {
         private readonly ISecretService _secretService;
         private readonly IReactUiService _reactUiService;
@@ -18,8 +21,9 @@ namespace CoreCodedChatbot.Web.SignalRHubs
         public SongList(
             ISecretService secretService,
             IReactUiService reactUiService,
-            ILogger<SongList> logger
-        )
+            ILogger<SongList> logger,
+            IClientIdClient clientIdClient
+        ) : base(clientIdClient)
         {
             _secretService = secretService;
             _reactUiService = reactUiService;
@@ -61,6 +65,14 @@ namespace CoreCodedChatbot.Web.SignalRHubs
             }
         }
 
+        public async Task PlaylistState(PlaylistStateUpdateModel data)
+        {
+            if (IsRequestAuthenticated(data.psk))
+            {
+                await Clients.All.SendCoreAsync("PlaylistState", new object[] { data.playlistState });
+            }
+        }
+
         public async Task NewRequest(PlaylistNewItemModel request)
         {
             await SendNewItemTask("NewRequest", request);
@@ -99,6 +111,17 @@ namespace CoreCodedChatbot.Web.SignalRHubs
         public async Task RemoveRequest(PlaylistBasicEditModel request)
         {
             await SendBasicEditTask("RemoveSong", request);
+        }
+
+        public async Task UpdateVips(VipTotalUpdateModel request)
+        {
+            await SendClientTask("UpdateVips", request.ClientId, request.psk, new object [] { request.VipTotal });
+        }
+
+        private async Task SendClientTask(string clientMethod, string clientId, string psk, object[] args)
+        {
+            if (IsRequestAuthenticated(psk))
+                await Clients.Client(clientId).SendCoreAsync(clientMethod, args);
         }
 
         private async Task SendNewItemTask(string clientMethod, PlaylistNewItemModel request)

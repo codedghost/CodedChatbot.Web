@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using AspNet.Security.OAuth.Twitch;
 
 namespace CoreCodedChatbot.Web.Extensions
 {
@@ -13,6 +14,13 @@ namespace CoreCodedChatbot.Web.Extensions
                 identity => identity.HasClaim(claim =>
                     claim.Type == "IsModerator" &&
                     string.Equals(claim.Value, "True", StringComparison.CurrentCultureIgnoreCase)));
+        }
+
+        public static string GetTwitchUsername(this ClaimsPrincipal claims)
+        {
+            var usernameClaim = claims.FindFirst(c => c.Type == TwitchAuthenticationConstants.Claims.DisplayName);
+
+            return usernameClaim?.Value;
         }
     }
 }

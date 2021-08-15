@@ -146,18 +146,12 @@ namespace CoreCodedChatbot.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAuthBaseModel()
         {
-            if (!User.Identity.IsAuthenticated) return null;
-
-            var vipCount = await _vipApiClient.GetUserVipCount(new GetUserVipCountRequest
-            {
-                Username = User.Identity.Name
-            }).ConfigureAwait(false);
+            if (!User.Identity.IsAuthenticated) return Json(null);
 
             return Json(new TwitchAuthBaseModel
             {
                 Username = User.Identity.Name,
-                IsModerator = User.Identities.IsMod(),
-                Vips = vipCount.Vips
+                IsModerator = User.Identities.IsMod()
             });
         }
     }

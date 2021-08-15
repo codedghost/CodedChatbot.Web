@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
+using CoreCodedChatbot.ApiContract.Enums.Playlist;
 using CoreCodedChatbot.ApiContract.RequestModels.Vip;
 using CoreCodedChatbot.ApiContract.ResponseModels.Playlist.ChildModels;
 using CoreCodedChatbot.Web.Extensions;
@@ -62,6 +63,34 @@ namespace CoreCodedChatbot.Web.Controllers
                 RegularQueue = regularQueue.ToList(),
                 VipQueue = vipQueue.ToList()
             });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserInfo()
+        {
+            var playlistState = await _playlistApiClient.IsPlaylistOpen();
+
+            var userPlaylistInfo = new UserPlaylistInfo
+            {
+                Vips = 0,
+                PlaylistState = playlistState switch
+                {
+                    PlaylistState.Open => "Open",
+                    PlaylistState.Closed => "VIP Only",
+                    _ => "Closed"
+                }
+            };
+
+            if (!User.Identity.IsAuthenticated) return Json(userPlaylistInfo);
+
+            var vipCount = await _vipApiClient.GetUserVipCount(new GetUserVipCountRequest
+            {
+                Username = User.Identity.Name
+            }).ConfigureAwait(false);
+
+            userPlaylistInfo.Vips = vipCount?.Vips ?? 0;
+
+            return Json(userPlaylistInfo);
         }
     }
 }
