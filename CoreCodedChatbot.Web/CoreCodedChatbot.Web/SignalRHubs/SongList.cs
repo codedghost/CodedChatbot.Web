@@ -121,8 +121,8 @@ namespace CoreCodedChatbot.Web.SignalRHubs
 
         public async Task UpdateBytes(ByteTotalUpdateModel request)
         {
-            var tasks = request.UserUpdates.Select(async update =>
-                await SendClientTask("UpdateBytes", update.ClientId, request.psk, new object[] {update.TotalBytes}));
+            var tasks = request.ClientIds.Select(async clientId =>
+                await SendClientTask("UpdateBytes", clientId, request.psk, new object[] {request.TotalBytes}));
 
             await Task.WhenAll(tasks.ToArray());
         }
