@@ -90,6 +90,10 @@ namespace CoreCodedChatbot.Web.Controllers
 
             userPlaylistInfo.Vips = vipCount?.Vips ?? 0;
 
+            var byteCount = await _vipApiClient.GetUserByteCount(User.Identity.Name);
+
+            userPlaylistInfo.Bytes = byteCount.Bytes;
+
             return Json(userPlaylistInfo);
         }
     }
