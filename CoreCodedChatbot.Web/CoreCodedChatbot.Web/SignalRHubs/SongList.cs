@@ -8,6 +8,7 @@ using CoreCodedChatbot.ApiContract.SignalRHubModels.Website.ClientSpecific;
 using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.Services;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
 
 namespace CoreCodedChatbot.Web.SignalRHubs
@@ -116,6 +117,14 @@ namespace CoreCodedChatbot.Web.SignalRHubs
         public async Task UpdateVips(VipTotalUpdateModel request)
         {
             await SendClientTask("UpdateVips", request.ClientId, request.psk, new object [] { request.VipTotal });
+        }
+
+        public async Task UpdateBytes(ByteTotalUpdateModel request)
+        {
+            var tasks = request.UserUpdates.Select(async update =>
+                await SendClientTask("UpdateBytes", update.ClientId, request.psk, new object[] {update.TotalBytes}));
+
+            await Task.WhenAll(tasks.ToArray());
         }
 
         private async Task SendClientTask(string clientMethod, string clientId, string psk, object[] args)
