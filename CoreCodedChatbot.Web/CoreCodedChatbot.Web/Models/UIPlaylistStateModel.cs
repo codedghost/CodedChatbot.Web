@@ -17,5 +17,6 @@ namespace CoreCodedChatbot.Web.Models
         public string Instrument { get; set; }
         public string Requester { get; set; }
         public bool IsInDrive { get; set; }
+        public bool IsInChat { get; set; }
     }
 }

@@ -17,7 +17,8 @@ namespace CoreCodedChatbot.Web.Services
                 SongArtist = item.FormattedRequest.SongArtist,
                 Instrument = item.FormattedRequest.InstrumentName,
                 Requester = item.songRequester,
-                IsInDrive = item.isInDrive
+                IsInDrive = item.isInDrive,
+                IsInChat = item.isInChat
             };
         }
     }
