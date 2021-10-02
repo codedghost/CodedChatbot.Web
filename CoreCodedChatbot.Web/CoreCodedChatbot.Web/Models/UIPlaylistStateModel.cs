@@ -16,5 +16,6 @@ namespace CoreCodedChatbot.Web.Models
         public string SongArtist { get; set; }
         public string Instrument { get; set; }
         public string Requester { get; set; }
+        public bool IsInDrive { get; set; }
     }
 }
