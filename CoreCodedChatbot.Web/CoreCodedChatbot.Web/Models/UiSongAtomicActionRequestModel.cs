@@ -1,6 +1,6 @@
 ﻿namespace CoreCodedChatbot.Web.Models
 {
-    public class UiSongRemoveRequestModel
+    public class UiSongAtomicActionRequestModel
     {
         public int songId { get; set; }
     }

@@ -13,6 +13,7 @@ using CoreCodedChatbot.Web.Models;
 using CoreCodedChatbot.Web.Services;
 using CoreCodedChatbot.Web.ViewModels.Playlist;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace CoreCodedChatbot.Web.Controllers
 {
@@ -21,16 +22,19 @@ namespace CoreCodedChatbot.Web.Controllers
         private readonly IPlaylistApiClient _playlistApiClient;
         private readonly IVipApiClient _vipApiClient;
         private readonly IReactUiService _reactUiService;
+        private readonly ILogger<PlaylistController> _logger;
 
         public PlaylistController(
             IPlaylistApiClient playlistApiClient,
             IVipApiClient vipApiClient,
-            IReactUiService reactUiService
+            IReactUiService reactUiService,
+            ILogger<PlaylistController> logger
         )
         {
             _playlistApiClient = playlistApiClient;
             _vipApiClient = vipApiClient;
             _reactUiService = reactUiService;
+            _logger = logger;
         }
 
         // GET
@@ -164,16 +168,16 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RemoveRequest([FromBody] UiSongRemoveRequestModel removeRequest)
+        public async Task<IActionResult> RemoveRequest([FromBody] UiSongAtomicActionRequestModel atomicActionRequest)
         {
             if (User.Identity.IsAuthenticated)
             {
-                var request = _playlistApiClient.GetRequestById(removeRequest.songId).Result.Request;
+                var request = _playlistApiClient.GetRequestById(atomicActionRequest.songId).Result.Request;
 
                 if (User.Identities.IsMod() ||
                     string.Equals(User.Identity.Name, request.songRequester))
                 {
-                    if (_playlistApiClient.ArchiveRequestById(removeRequest.songId).Result)
+                    if (_playlistApiClient.ArchiveRequestById(atomicActionRequest.songId).Result)
                         return Ok("Success");
                 }
             }
@@ -182,7 +186,7 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RemoveCurrent([FromBody] UiSongRemoveRequestModel removeCurrentRequest)
+        public async Task<IActionResult> RemoveCurrent([FromBody] UiSongAtomicActionRequestModel atomicActionCurrentRequest)
         {
             if (User.Identity.IsAuthenticated)
             {
@@ -190,7 +194,7 @@ namespace CoreCodedChatbot.Web.Controllers
                 {
                     try
                     {
-                        await _playlistApiClient.ArchiveCurrentRequest(removeCurrentRequest.songId);
+                        await _playlistApiClient.ArchiveCurrentRequest(atomicActionCurrentRequest.songId);
                         return Ok("Success");
                     }
                     catch (Exception)
@@ -201,6 +205,31 @@ namespace CoreCodedChatbot.Web.Controllers
             }
 
             return Ok("Encountered an error, or you are not a moderator");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> MarkInDrive([FromBody] UiSongAtomicActionRequestModel markInDriveRequest)
+        {
+            if (!User.Identities.IsMod())
+            {
+                _logger.LogError(
+                    $"User {User.Identity.Name} attempted to mark a request as in the drive, this user is not a moderator");
+                return Ok("You are not permitted to perform this action");
+            }
+
+            try
+            {
+                var success = await _playlistApiClient.AddRequestToDrive(new AddSongToDriveRequest
+                {
+                    SongRequestId = markInDriveRequest.songId
+                }).ConfigureAwait(false);
+                return Ok(success ? "Success" : "Attempt unsuccessful");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error in {HttpContext.Request.RouteValues["action"]}");
+                return Ok("Encountered an error, please try again in a moment");
+            }
         }
     }
 }
