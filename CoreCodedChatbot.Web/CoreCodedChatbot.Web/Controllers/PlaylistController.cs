@@ -180,5 +180,27 @@ namespace CoreCodedChatbot.Web.Controllers
 
             return Ok("Could not remove this request, please try again in a moment");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveCurrent([FromBody] UiSongRemoveRequestModel removeCurrentRequest)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                if (User.Identities.IsMod())
+                {
+                    try
+                    {
+                        await _playlistApiClient.ArchiveCurrentRequest(removeCurrentRequest.songId);
+                        return Ok("Success");
+                    }
+                    catch (Exception)
+                    {
+                        return Ok("Encountered an error, or you are not a moderator");
+                    }
+                }
+            }
+
+            return Ok("Encountered an error, or you are not a moderator");
+        }
     }
 }
