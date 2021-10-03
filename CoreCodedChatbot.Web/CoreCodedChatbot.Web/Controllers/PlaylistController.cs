@@ -129,14 +129,36 @@ namespace CoreCodedChatbot.Web.Controllers
             };
             return Ok(errorMessage);
         }
-    }
 
-    public class UiSongRequestModel
-    {
-        public string songName { get; set; }
-        public string artistName { get; set; }
-        public string instrument { get; set; }
-        public bool useVipToken { get; set; }
-        public bool useSuperVipToken { get; set; }
+        [HttpPost]
+        public async Task<IActionResult> EditRequest([FromBody] UiSongRequestModel request)
+        {
+            if (!User.Identities.Any(id => id.IsAuthenticated))
+                return BadRequest();
+
+            var response = await _playlistApiClient.EditWebRequest(new EditWebRequestRequestModel
+            {
+                SongRequestId = request.songRequestId,
+                Title = request.songName,
+                Artist = request.artistName,
+                SelectedInstrument = request.instrument,
+                IsVip = request.useVipToken,
+                IsSuperVip = request.useSuperVipToken,
+                IsMod = User.Identities.IsMod(),
+                Username = User.Identity.Name
+            }).ConfigureAwait(false);
+
+            var errorMessage = response.EditResult switch
+            {
+                EditRequestResult.NoRequestEntered => "Please enter more information",
+                EditRequestResult.NotYourRequest => "This doesn't appear to be your song, please refresh and try again",
+                EditRequestResult.RequestAlreadyRemoved => "Sorry, this song has been removed from the playlist",
+                EditRequestResult.UnSuccessful => "An error has occurred, please wait a moment and try again",
+                EditRequestResult.Success => "Success",
+                _ => string.Empty
+            };
+
+            return Ok(errorMessage);
+        }
     }
 }
