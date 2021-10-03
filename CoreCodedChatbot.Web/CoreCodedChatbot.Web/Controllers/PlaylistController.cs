@@ -231,5 +231,30 @@ namespace CoreCodedChatbot.Web.Controllers
                 return Ok("Encountered an error, please try again in a moment");
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> PromoteRequest([FromBody] PromoteRequestModel promoteRequestModel)
+        {
+            if (!User.Identity.IsAuthenticated)
+                return Ok("It looks like you're not logged in, log in and try again");
+
+            var promoteRequestResult = await _playlistApiClient.PromoteSong(
+                new PromoteSongRequest
+                {
+                    SongRequestId = promoteRequestModel.songId,
+                    Username = User.Identity.Name.ToLower()
+                });
+
+            var response = promoteRequestResult?.PromoteRequestResult switch
+            {
+                PromoteRequestResult.NotYourRequest => "This is not your request. Please try again",
+                PromoteRequestResult.AlreadyVip => "This request has already been promoted! Congratulations",
+                PromoteRequestResult.NoVipAvailable => "Sorry but you don't seem to have a VIP token",
+                PromoteRequestResult.Successful => "Success",
+                _ => string.Empty
+            };
+
+            return Ok(response);
+        }
     }
 }
