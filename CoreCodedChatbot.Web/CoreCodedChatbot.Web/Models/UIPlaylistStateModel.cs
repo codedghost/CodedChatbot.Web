@@ -18,5 +18,7 @@ namespace CoreCodedChatbot.Web.Models
         public string Requester { get; set; }
         public bool IsInDrive { get; set; }
         public bool IsInChat { get; set; }
+        public bool IsVip { get; set; }
+        public bool IsSuperVip { get; set; }
     }
 }

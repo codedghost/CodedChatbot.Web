@@ -26,7 +26,7 @@ namespace CoreCodedChatbot.Web.Controllers
             IPlaylistApiClient playlistApiClient,
             IVipApiClient vipApiClient,
             IReactUiService reactUiService
-            )
+        )
         {
             _playlistApiClient = playlistApiClient;
             _vipApiClient = vipApiClient;
@@ -56,7 +56,8 @@ namespace CoreCodedChatbot.Web.Controllers
                     _reactUiService.FormatUiModel(r, false, true));
 
             var vipQueue =
-                allCurrentSongRequests.VipList.Where(r => r.songRequestId != (currentSong?.SongId ?? 0)).Select(r => _reactUiService.FormatUiModel(r, false, false));
+                allCurrentSongRequests.VipList.Where(r => r.songRequestId != (currentSong?.SongId ?? 0))
+                    .Select(r => _reactUiService.FormatUiModel(r, false, false));
 
             return Json(new UiPlaylistStateModel
             {
@@ -120,7 +121,8 @@ namespace CoreCodedChatbot.Web.Controllers
                 "You already have the maximum number of regular requests in the queue! Please wait until your song has been played, edit your song, or use a VIP token",
                 AddRequestResult.NoRequestEntered => "Please enter more information",
                 AddRequestResult.NotEnoughVips => "You do not have enough VIPs to request this song at the moment",
-                AddRequestResult.OnlyOneSuper => "There can only be 1 Super VIP request in the queue at one time. Please wait a moment for this song to be played",
+                AddRequestResult.OnlyOneSuper =>
+                "There can only be 1 Super VIP request in the queue at one time. Please wait a moment for this song to be played",
                 AddRequestResult.PlaylistClosed => "The playlist is currently only accepting VIP requests",
                 AddRequestResult.PlaylistVeryClosed => "The playlist is currently completely closed",
                 AddRequestResult.UnSuccessful => "An error has occurred, please wait a moment and try again",
@@ -159,6 +161,24 @@ namespace CoreCodedChatbot.Web.Controllers
             };
 
             return Ok(errorMessage);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveRequest([FromBody] UiSongRemoveRequestModel removeRequest)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                var request = _playlistApiClient.GetRequestById(removeRequest.songId).Result.Request;
+
+                if (User.Identities.IsMod() ||
+                    string.Equals(User.Identity.Name, request.songRequester))
+                {
+                    if (_playlistApiClient.ArchiveRequestById(removeRequest.songId).Result)
+                        return Ok("Success");
+                }
+            }
+
+            return Ok("Could not remove this request, please try again in a moment");
         }
     }
 }
