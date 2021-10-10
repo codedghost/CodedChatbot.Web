@@ -249,8 +249,8 @@ namespace CoreCodedChatbot.Web.Controllers
             var response = promoteRequestResult?.PromoteRequestResult switch
             {
                 PromoteRequestResult.NotYourRequest => "This is not your request. Please try again",
-                PromoteRequestResult.AlreadyVip => "This request has already been promoted! Congratulations",
-                PromoteRequestResult.NoVipAvailable => "Sorry but you don't seem to have a VIP token",
+                PromoteRequestResult.AlreadyVip => promoteRequestModel.useSuperVip ? "This request is already a SuperVIP! It'll be played next" : "This request is already a VIP! Congratulations",
+                PromoteRequestResult.NoVipAvailable => promoteRequestModel.useSuperVip  ? "Sorry but you don't have enough tokens" : "Sorry but you don't seem to have a VIP token",
                 PromoteRequestResult.Successful => "Success",
                 _ => string.Empty
             };
