@@ -242,7 +242,8 @@ namespace CoreCodedChatbot.Web.Controllers
                 new PromoteSongRequest
                 {
                     SongRequestId = promoteRequestModel.songId,
-                    Username = User.Identity.Name.ToLower()
+                    Username = User.Identity.Name.ToLower(),
+                    UseSuperVip = promoteRequestModel.useSuperVip
                 });
 
             var response = promoteRequestResult?.PromoteRequestResult switch
