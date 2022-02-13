@@ -14,6 +14,7 @@ using CoreCodedChatbot.Web.Services;
 using CoreCodedChatbot.Web.ViewModels.Playlist;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using TwitchLib.Client.Models;
 
 namespace CoreCodedChatbot.Web.Controllers
 {
@@ -256,6 +257,43 @@ namespace CoreCodedChatbot.Web.Controllers
             };
 
             return Ok(response);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SetPlaylistState([FromBody] SetPlaylistStateRequest request)
+        {
+            if (!User.Identity.IsAuthenticated || !User.Identities.IsMod())
+            {
+                return Ok("It looks like you're not a moderator, log in and try again");
+            }
+
+            if (!Enum.TryParse<PlaylistState>(request.playlistState, out var parsedPlaylistState))
+            {
+                return Ok("State is not a valid PlaylistState value");
+            }
+
+            var result = parsedPlaylistState switch
+            {
+                PlaylistState.Open => await _playlistApiClient.OpenPlaylist() ? "success" : "Could not open Playlist, please try again",
+                PlaylistState.Closed => await _playlistApiClient.ClosePlaylist() ? "success" : "Could not close Playlist, please try again",
+                PlaylistState.VeryClosed => await _playlistApiClient.VeryClosePlaylist() ? "success" : "Could not very-close Playlist, please try again",
+                _ => throw new ArgumentOutOfRangeException(nameof(request.playlistState), request.playlistState, "State is not a valid PlaylistState value")
+            };
+
+            return Ok(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EmptyPlaylist()
+        {
+            if (!User.Identity.IsAuthenticated || !User.Identities.IsMod())
+            {
+                return Ok("It looks like you're not a moderator, log in and try again");
+            }
+
+            var result = await _playlistApiClient.ClearRequests();
+
+            return Ok(result ? "success" : "Could not empty the playlist at this time, please try again");
         }
     }
 }
