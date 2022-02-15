@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CoreCodedChatbot.ApiClient.ApiClients;
 using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
@@ -153,6 +154,34 @@ namespace CoreCodedChatbot.Web.Controllers
                 Username = User.Identity.Name,
                 IsModerator = User.Identities.IsMod()
             });
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> SongSearch([FromBody] SongSearchRequestModel model)
+        {
+            if (string.IsNullOrWhiteSpace(model.SongName) && string.IsNullOrWhiteSpace(model.ArtistName))
+                return BadRequest("No Search Criteria Provided");
+
+            var searchResults = await _searchApiClient.FormattedSongSearch(new FormattedSongSearchRequest
+            {
+                SongName = model.SongName,
+                ArtistName = model.ArtistName
+            });
+
+            var searchResultsViewModel = searchResults.SearchResults.Select(
+                result => new SearchResult
+                {
+                    SongId = result.SongId,
+                    SongName = result.SongName,
+                    CharterUsername = result.CharterUsername,
+                    SongArtist = result.ArtistName,
+                    IsOfficial = result.IsOfficial,
+                    IsDownloaded = result.IsDownloaded,
+                    IsLinkDead = result.IsLinkDead
+                });
+
+            return Json(searchResultsViewModel);
         }
     }
 }
