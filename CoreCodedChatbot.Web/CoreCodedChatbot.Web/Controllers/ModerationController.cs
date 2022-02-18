@@ -183,5 +183,29 @@ namespace CoreCodedChatbot.Web.Controllers
 
             return Json(searchResultsViewModel);
         }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> ModerationTransferUser([FromBody] TransferUserViewModel request)
+        {
+            if (!User.Identities.IsMod())
+            {
+                return BadRequest("You are not authorized to do this");
+            }
+
+            var success = await _moderationApiClient.TransferUserAccount(new TransferUserAccountRequest
+            {
+                RequestingModerator = User.Identity.Name.ToLower(),
+                OldUsername = request.OldUsername,
+                NewUsername = request.NewUsername
+            });
+
+            if (!success)
+            {
+                return BadRequest("Could not transfer the user's data at this time");
+            }
+
+            return Ok(success);
+        }
     }
 }
