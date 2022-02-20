@@ -58,6 +58,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Components\" />
     <Folder Include="wwwroot\css\" />
     <Folder Include="wwwroot\scripts\" />
   </ItemGroup>
