@@ -17,6 +17,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CoreCodedChatbot.Web.Controllers
 {
+    [Authorize]
     public class ModerationController : Controller
     {
         private readonly IModerationApiClient _moderationApiClient;
@@ -35,98 +36,7 @@ namespace CoreCodedChatbot.Web.Controllers
             _vipApiClient = vipApiClient;
             _logger = logger;
         }
-
-        [Authorize]
-        public IActionResult TransferUser()
-        {
-            if (!User.Identities.IsMod())
-                RedirectToAction("Index", "Home");
-
-            return View(new TransferUserViewModel());
-        }
-
-        [Authorize]
-        public async Task<IActionResult> ProcessTransferUser(TransferUserViewModel request)
-        {
-            if (!User.Identities.IsMod())
-            {
-                ControllerContext.ModelState.AddModelError("TransferStatus", "You're not a moderator! How dare you!");
-                return View("TransferUser", request);
-            }
-
-            var success = await _moderationApiClient.TransferUserAccount(new TransferUserAccountRequest
-            {
-                RequestingModerator = User.Identity.Name.ToLower(),
-                OldUsername = request.OldUsername,
-                NewUsername = request.NewUsername
-            });
-
-            if (!success)
-            {
-                ControllerContext.ModelState.AddModelError("TransferStatus",
-                    "Could not transfer the user's data at this time");
-                return View("TransferUser", request);
-            }
-
-            return RedirectToAction("Index", "Home");
-        }
-
-        [Authorize]
-        public async Task<IActionResult> Search()
-        {
-            if (!User.Identities.IsMod())
-                RedirectToAction("Index", "Home");
-
-            var model = new SearchViewModel
-            {
-                SongName= string.Empty,
-                ArtistName = string.Empty,
-                SearchResults = new List<SearchResult>()
-            };
-
-            return View(model);
-        }
-
-        [Authorize]
-        public async Task<IActionResult> SubmitSearch(SearchViewModel search)
-        {
-            if (string.IsNullOrWhiteSpace(search.SongName) && string.IsNullOrWhiteSpace(search.ArtistName))
-                return View("Search", new SearchViewModel
-                {
-                    SongName = string.Empty,
-                    ArtistName = string.Empty,
-                    SearchResults = new List<SearchResult>()
-                });
-
-            var searchResults = await _searchApiClient.FormattedSongSearch(new FormattedSongSearchRequest
-            {
-                SongName = search.SongName,
-                ArtistName = search.ArtistName
-            });
-
-            var searchResultsViewModel = new List<SearchResult>();
-            foreach (var result in searchResults.SearchResults)
-            {
-                searchResultsViewModel.Add(new SearchResult
-                {
-                    SongId = result.SongId,
-                    SongName = result.SongName,
-                    CharterUsername = result.CharterUsername,
-                    SongArtist = result.ArtistName,
-                    IsOfficial = result.IsOfficial,
-                    IsDownloaded = result.IsDownloaded,
-                    IsLinkDead = result.IsLinkDead
-                });
-            }
-
-            return View("Search", new SearchViewModel
-            {
-                SongName = search.SongName,
-                ArtistName = search.SongName,
-                SearchResults = searchResultsViewModel
-            });
-        }
-
+        
         [HttpPost]
         public async Task<IActionResult> DownloadToOneDrive([FromBody] SearchDownloadModel model)
         {
@@ -139,9 +49,9 @@ namespace CoreCodedChatbot.Web.Controllers
             });
 
             if (!response)
-                return BadRequest();
+                return Ok(false);
 
-            return Ok();
+            return Ok(true);
         }
 
         [HttpGet]
@@ -157,7 +67,6 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> SongSearch([FromBody] SongSearchRequestModel model)
         {
             if (string.IsNullOrWhiteSpace(model.SongName) && string.IsNullOrWhiteSpace(model.ArtistName))
@@ -183,8 +92,7 @@ namespace CoreCodedChatbot.Web.Controllers
 
             return Json(searchResultsViewModel);
         }
-
-        [Authorize]
+        
         [HttpPost]
         public async Task<IActionResult> ModerationTransferUser([FromBody] TransferUserViewModel request)
         {
