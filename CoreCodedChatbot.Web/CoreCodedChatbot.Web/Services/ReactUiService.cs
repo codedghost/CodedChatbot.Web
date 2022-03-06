@@ -13,9 +13,9 @@ namespace CoreCodedChatbot.Web.Services
             return new SongRequest
             {
                 SongId = item.songRequestId,
-                SongTitle = item.FormattedRequest.SongName,
-                SongArtist = item.FormattedRequest.SongArtist,
-                Instrument = item.FormattedRequest.InstrumentName,
+                SongTitle = item.FormattedRequest?.SongName ?? item.songRequestText,
+                SongArtist = item.FormattedRequest?.SongArtist ?? string.Empty,
+                Instrument = item.FormattedRequest?.InstrumentName ?? string.Empty,
                 Requester = item.songRequester,
                 IsInDrive = item.isInDrive,
                 IsInChat = item.isInChat,
