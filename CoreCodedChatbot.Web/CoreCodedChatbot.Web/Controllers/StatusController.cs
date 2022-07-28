@@ -31,7 +31,7 @@ namespace CoreCodedChatbot.Web.Controllers
                 BroadcasterUsername = broadcaster
             });
 
-            return Ok(status);
+            return Ok(status.IsOnline);
         }
     }
 }
