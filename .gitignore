@@ -19,3 +19,6 @@
 /CoreCodedChatbot.Web/CoreCodedChatbot.Web/appsettings.Local.json
 /CoreCodedChatbot.Web/.vs/CoreCodedChatbot.Web/v17
 /CoreCodedChatbot.Web/.vs/CoreCodedChatbot.Web
+*.suo
+/.vs
+/CoreCodedChatbot.Web/.vs/ProjectEvaluation
