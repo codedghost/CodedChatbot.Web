@@ -87,7 +87,8 @@ namespace CoreCodedChatbot.Web.Controllers
                     SongArtist = result.ArtistName,
                     IsOfficial = result.IsOfficial,
                     IsDownloaded = result.IsDownloaded,
-                    IsLinkDead = result.IsLinkDead
+                    IsLinkDead = result.IsLinkDead,
+                    DownloadUrl = result.DownloadUrl
                 });
 
             return Json(searchResultsViewModel);
