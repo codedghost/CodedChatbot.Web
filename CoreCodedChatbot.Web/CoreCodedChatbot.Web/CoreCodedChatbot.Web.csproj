@@ -40,7 +40,7 @@
     <PackageReference Include="AspNet.Security.OAuth.Twitch" Version="3.1.3" />
     <PackageReference Include="CodedChatbot.TwitchFactories" Version="1.0.952" />
     <PackageReference Include="CodedGhost.Config" Version="1.0.549" />
-    <PackageReference Include="CoreCodedChatbot.ApiClient" Version="1.0.968" />
+    <PackageReference Include="CoreCodedChatbot.ApiClient" Version="1.0.987" />
     <PackageReference Include="CoreCodedChatbot.Logging" Version="1.0.743" />
     <PackageReference Include="CoreCodedChatbot.Secrets" Version="1.0.733" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.3" />
