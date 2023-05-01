@@ -32,7 +32,8 @@ namespace CoreCodedChatbot.Web
                 .AddChatbotSecretServiceCollection(
                     configService.Get<string>("KeyVaultAppId"),
                     configService.Get<string>("KeyVaultCertThumbprint"),
-                    configService.Get<string>("KeyVaultBaseUrl")
+                    configService.Get<string>("KeyVaultBaseUrl"),
+                    configService.Get<string>("ActiveDirectoryTenantId")
                 );
 
             //var builder = new ConfigurationBuilder().SetBasePath(Environment.GetEnvironmentVariable("ASPNETCORE_CONTENTROOT"));

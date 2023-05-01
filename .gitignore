@@ -22,3 +22,5 @@
 *.suo
 /.vs
 /CoreCodedChatbot.Web/.vs/ProjectEvaluation
+/CoreCodedChatbot.Web/CoreCodedChatbot.Web/bin/Debug/net7.0
+/CoreCodedChatbot.Web/CoreCodedChatbot.WebApp/bin/Debug/net7.0
