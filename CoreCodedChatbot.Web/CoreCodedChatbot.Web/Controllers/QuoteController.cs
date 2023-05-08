@@ -1,17 +1,23 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using CodedChatbot.TwitchFactories.Interfaces;
+using CoreCodedChatbot.ApiClient.DataHelper;
 using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
 using CoreCodedChatbot.ApiContract.RequestModels.Quotes;
+using CoreCodedChatbot.ApiContract.ResponseModels.Quotes;
 using CoreCodedChatbot.Config;
+using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.Extensions;
 using CoreCodedChatbot.Web.Interfaces.Services;
 using CoreCodedChatbot.Web.ViewModels.Quote;
 using CoreCodedChatbot.Web.ViewModels.Quote.ChildModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Build.Framework;
+using Microsoft.Extensions.Logging;
 using TwitchLib.Client;
 
 namespace CoreCodedChatbot.Web.Controllers
@@ -19,23 +25,26 @@ namespace CoreCodedChatbot.Web.Controllers
     [Authorize]
     public class QuoteController : Controller
     {
-        private readonly IQuoteApiClient _quoteApiClient;
+        private readonly HttpClient _quoteApiClient;
         private readonly IConfigService _configService;
         private readonly ITwitchClientFactory _twitchClientFactory;
+        private readonly ILogger<QuoteController> _logger;
 
         public QuoteController(
-            IQuoteApiClient quoteApiClient,
             IConfigService configService,
-            ITwitchClientFactory twitchClientFactory)
+            ISecretService secretService,
+            ITwitchClientFactory twitchClientFactory,
+            ILogger<QuoteController> logger)
         {
-            _quoteApiClient = quoteApiClient;
+            _quoteApiClient = HttpClientHelper.BuildClient(configService, secretService, "Quote");
             _configService = configService;
             _twitchClientFactory = twitchClientFactory;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
         {
-            var quotes = await _quoteApiClient.GetQuotes();
+            var quotes = await _quoteApiClient.GetAsync<GetQuotesResponse>("GetQuotes", _logger);
             var isMod = false;
 
             if (User.Identity.IsAuthenticated)
@@ -71,10 +80,8 @@ namespace CoreCodedChatbot.Web.Controllers
             {
                 if (ModelState.IsValid && HttpContext.User.Identity.IsAuthenticated)
                 {
-                    var quote = await _quoteApiClient.GetQuote(new GetQuoteRequest
-                    {
-                        QuoteId = quoteActionModel.QuoteId
-                    });
+                    var quote = await _quoteApiClient.GetAsync<GetQuoteResponse>(
+                        $"GetQuote?quoteId={quoteActionModel.QuoteId}", _logger);
 
                     var client = _twitchClientFactory.Get();
                     client.SendMessage(_configService.Get<string>("StreamerChannel"),
@@ -95,13 +102,13 @@ namespace CoreCodedChatbot.Web.Controllers
             {
                 if (ModelState.IsValid && HttpContext.User.Identity.IsAuthenticated && !string.IsNullOrWhiteSpace(quoteActionModel.Text))
                 {
-                    success = await _quoteApiClient.EditQuote(new EditQuoteRequest
+                    success = await _quoteApiClient.PostAsync<EditQuoteRequest, bool>("EditQuote", new EditQuoteRequest
                     {
                         QuoteId = quoteActionModel.QuoteId,
                         QuoteText = quoteActionModel.Text,
                         Username = HttpContext.User.Identity.Name,
                         IsMod = User.Identities.IsMod()
-                    });
+                    }, _logger);
                 }
             } catch (Exception)
             {
@@ -121,12 +128,12 @@ namespace CoreCodedChatbot.Web.Controllers
             {
                 if (ModelState.IsValid && HttpContext.User.Identity.IsAuthenticated)
                 {
-                    success = await _quoteApiClient.RemoveQuote(new RemoveQuoteRequest
+                    success = await _quoteApiClient.PostAsync<RemoveQuoteRequest, bool>("RemoveQuote", new RemoveQuoteRequest
                     {
                         QuoteId = quoteActionModel.QuoteId,
                         Username = HttpContext.User.Identity.Name,
                         IsMod = User.Identities.IsMod()
-                    });
+                    }, _logger);
                 }
             }
             catch (Exception)

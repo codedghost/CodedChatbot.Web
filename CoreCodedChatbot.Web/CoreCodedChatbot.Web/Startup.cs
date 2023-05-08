@@ -70,7 +70,6 @@ namespace CoreCodedChatbot.Web
         {
             if (env.IsDevelopment() || string.Equals(env.EnvironmentName, "Local", StringComparison.InvariantCultureIgnoreCase))
             {
-                app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
             }
             else

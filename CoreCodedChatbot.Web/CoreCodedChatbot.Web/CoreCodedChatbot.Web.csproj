@@ -40,7 +40,7 @@
     <PackageReference Include="AspNet.Security.OAuth.Twitch" Version="7.0.2" />
     <PackageReference Include="CodedChatbot.TwitchFactories" Version="1.0.1094" />
     <PackageReference Include="CodedGhost.Config" Version="1.0.1065" />
-    <PackageReference Include="CoreCodedChatbot.ApiClient" Version="1.0.1084" />
+    <PackageReference Include="CoreCodedChatbot.ApiClient" Version="1.0.1138" />
     <PackageReference Include="CoreCodedChatbot.Logging" Version="1.0.1082" />
     <PackageReference Include="CoreCodedChatbot.Secrets" Version="1.0.1067" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.5" />
@@ -50,7 +50,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.6" />
     <PackageReference Include="PayPalCheckoutSdk" Version="1.0.4" />
     <PackageReference Include="PrintfulLib" Version="1.0.1068" />
