@@ -13,7 +13,6 @@ using Microsoft.Extensions.Logging;
 
 namespace CoreCodedChatbot.Web.Controllers
 {
-    [Authorize]
     [EnableCors("Default")]
     public class CounterController : Controller
     {
