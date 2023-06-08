@@ -1,6 +1,4 @@
-﻿using CoreCodedChatbot.ApiContract.Enums.Playlist;
-
-namespace CoreCodedChatbot.Web.Models
+﻿namespace CoreCodedChatbot.Web.Models
 {
     public class SetPlaylistStateRequest
     {

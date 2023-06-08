@@ -1,12 +1,10 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
-using CodedChatbot.TwitchFactories.Interfaces;
 using CoreCodedChatbot.ApiClient.DataHelper;
 using CoreCodedChatbot.ApiContract.ResponseModels.Counters;
 using CoreCodedChatbot.Config;
 using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.ViewModels.Counter;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

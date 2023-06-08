@@ -1,14 +1,10 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
-using CoreCodedChatbot.ApiContract.SharedExternalRequestModels;
-using CoreCodedChatbot.ApiContract.SignalRHubModels;
 using CoreCodedChatbot.ApiContract.SignalRHubModels.Website;
 using CoreCodedChatbot.ApiContract.SignalRHubModels.Website.ClientSpecific;
 using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.Services;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
 
 namespace CoreCodedChatbot.Web.SignalRHubs

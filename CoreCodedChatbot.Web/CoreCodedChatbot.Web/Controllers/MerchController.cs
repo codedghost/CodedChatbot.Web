@@ -1,5 +1,6 @@
 ﻿namespace CoreCodedChatbot.Web.Controllers
 {
+    //[EnableCors("Default")]
     //public class MerchController : Controller
     //{
     //    private readonly IPrintfulClient _printfulClient;

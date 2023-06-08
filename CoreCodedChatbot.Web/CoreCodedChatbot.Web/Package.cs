@@ -11,13 +11,9 @@ using CoreCodedChatbot.Web.Interfaces.Services;
 using CoreCodedChatbot.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using TwitchLib.Api;
-using TwitchLib.Client;
-using TwitchLib.Client.Models;
 
 namespace CoreCodedChatbot.Web
 {

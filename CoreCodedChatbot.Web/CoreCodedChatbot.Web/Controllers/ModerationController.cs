@@ -1,23 +1,21 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using CoreCodedChatbot.ApiClient.ApiClients;
 using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
 using CoreCodedChatbot.ApiContract.RequestModels.Moderation;
 using CoreCodedChatbot.ApiContract.RequestModels.Search;
-using CoreCodedChatbot.ApiContract.RequestModels.Vip;
 using CoreCodedChatbot.Web.Extensions;
-using CoreCodedChatbot.Web.Interfaces;
-using CoreCodedChatbot.Web.Interfaces.Services;
 using CoreCodedChatbot.Web.Models;
 using CoreCodedChatbot.Web.ViewModels.Moderation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace CoreCodedChatbot.Web.Controllers
 {
     [Authorize]
+    [EnableCors("Default")]
     public class ModerationController : Controller
     {
         private readonly IModerationApiClient _moderationApiClient;

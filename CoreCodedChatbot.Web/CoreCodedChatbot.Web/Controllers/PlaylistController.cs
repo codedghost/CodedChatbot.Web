@@ -6,18 +6,16 @@ using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
 using CoreCodedChatbot.ApiContract.Enums.Playlist;
 using CoreCodedChatbot.ApiContract.RequestModels.Playlist;
 using CoreCodedChatbot.ApiContract.RequestModels.Vip;
-using CoreCodedChatbot.ApiContract.ResponseModels.Playlist.ChildModels;
 using CoreCodedChatbot.Web.Extensions;
-using CoreCodedChatbot.Web.Interfaces.Services;
 using CoreCodedChatbot.Web.Models;
 using CoreCodedChatbot.Web.Services;
-using CoreCodedChatbot.Web.ViewModels.Playlist;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using TwitchLib.Client.Models;
 
 namespace CoreCodedChatbot.Web.Controllers
 {
+    [EnableCors("Default")]
     public class PlaylistController : Controller
     {
         private readonly IPlaylistApiClient _playlistApiClient;

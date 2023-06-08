@@ -1,10 +1,12 @@
 ﻿using System.Threading.Tasks;
 using CoreCodedChatbot.Config;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoreCodedChatbot.Web.Controllers
 {
+    [EnableCors("Default")]
     public class LoginController : Controller
     {
         private string _frontendUrl;

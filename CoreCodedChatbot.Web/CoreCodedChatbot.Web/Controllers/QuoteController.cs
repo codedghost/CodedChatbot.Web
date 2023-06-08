@@ -1,28 +1,25 @@
 ﻿using System;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CodedChatbot.TwitchFactories.Interfaces;
 using CoreCodedChatbot.ApiClient.DataHelper;
-using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
 using CoreCodedChatbot.ApiContract.RequestModels.Quotes;
 using CoreCodedChatbot.ApiContract.ResponseModels.Quotes;
 using CoreCodedChatbot.Config;
 using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.Extensions;
-using CoreCodedChatbot.Web.Interfaces.Services;
 using CoreCodedChatbot.Web.ViewModels.Quote;
 using CoreCodedChatbot.Web.ViewModels.Quote.ChildModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Build.Framework;
 using Microsoft.Extensions.Logging;
-using TwitchLib.Client;
 
 namespace CoreCodedChatbot.Web.Controllers
 {
     [Authorize]
+    [EnableCors("Default")]
     public class QuoteController : Controller
     {
         private readonly HttpClient _quoteApiClient;

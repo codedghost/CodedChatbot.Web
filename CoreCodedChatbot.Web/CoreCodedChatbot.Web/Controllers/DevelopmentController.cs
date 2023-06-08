@@ -6,11 +6,12 @@ using CoreCodedChatbot.ApiContract.RequestModels.DevOps;
 using CoreCodedChatbot.ApiContract.ResponseModels.DevOps.ChildModels;
 using CoreCodedChatbot.Web.ViewModels.Development;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoreCodedChatbot.Web.Controllers
 {
-
+    [EnableCors("Default")]
     public class DevelopmentController : Controller
     {
         private readonly IDevOpsApiClient _devOpsApiClient;
