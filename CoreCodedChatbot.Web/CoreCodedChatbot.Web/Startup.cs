@@ -67,7 +67,7 @@ namespace CoreCodedChatbot.Web
                 {
                     policy.WithOrigins(new string[]
                     {
-                        "*"
+                        "https://codedghost.com", "https://www.codedghost.com", "https://api.codedghost.com", "http://localhost:3000"
                     });
                 });
             });
