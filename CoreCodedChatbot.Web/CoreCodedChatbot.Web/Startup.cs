@@ -61,6 +61,16 @@ namespace CoreCodedChatbot.Web
             services.AddControllersWithViews();
             services.AddRazorPages().AddRazorRuntimeCompilation();
             services.AddSignalR();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("Default", policy =>
+                {
+                    policy.WithOrigins(new string[]
+                    {
+                        "*"
+                    });
+                });
+            });
 
             services.AddRouting();
         }
@@ -95,11 +105,7 @@ namespace CoreCodedChatbot.Web
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseCors(builder => builder.WithOrigins(new[]
-                    {"https://codedghost.com", "https://www.codedghost.com", "https://api.codedghost.com", "http://localhost:3000"})
-                .AllowAnyHeader()
-                .WithMethods("GET", "POST")
-                .AllowCredentials());
+            app.UseCors("Default");
 
             app.UseEndpoints(endpoints =>
             {
