@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CoreCodedChatbot.Web.Controllers
 {
-    [EnableCors("Default")]
+    [EnableCors]
     public class ChatbotController : Controller
     {
         private readonly IPlaylistApiClient _playlistApiClient;

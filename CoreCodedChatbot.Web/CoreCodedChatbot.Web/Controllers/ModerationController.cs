@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 namespace CoreCodedChatbot.Web.Controllers
 {
     [Authorize]
-    [EnableCors("Default")]
+    [EnableCors]
     public class ModerationController : Controller
     {
         private readonly IModerationApiClient _moderationApiClient;

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CoreCodedChatbot.Web.Controllers
 {
-    [EnableCors("Default")]
+    [EnableCors]
     public class LoginController : Controller
     {
         private string _frontendUrl;

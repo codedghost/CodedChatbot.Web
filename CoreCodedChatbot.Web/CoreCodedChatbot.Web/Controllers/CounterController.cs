@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CoreCodedChatbot.Web.Controllers
 {
-    [EnableCors("Default")]
+    [EnableCors]
     public class CounterController : Controller
     {
         private readonly HttpClient _counterHttpClient;

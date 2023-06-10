@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CoreCodedChatbot.Web.Controllers
 {
-    [EnableCors("Default")]
+    [EnableCors]
     public class HomeController : Controller
     {
         private readonly IConfigService _configService;

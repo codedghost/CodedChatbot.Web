@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CoreCodedChatbot.Web.Controllers
 {
-    [EnableCors("Default")]
+    [EnableCors]
     public class MediaController : Controller
     {
         // GET

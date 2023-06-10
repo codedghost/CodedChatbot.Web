@@ -56,21 +56,22 @@ namespace CoreCodedChatbot.Web
                 .AddSignalRServices()
                 .AddApiClientServices()
                 .AddServices();
-                //.AddChatbotPrintfulService();
+            //.AddChatbotPrintfulService();
 
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy
+                        .WithOrigins("https://codedghost.com", "https://www.codedghost.com",
+                            "https://api.codedghost.com", "http://localhost:3000")
+                        .WithMethods("GET", "POST", "PUT", "DELETE")
+                        .AllowCredentials();
+                });
+            });
             services.AddControllersWithViews();
             services.AddRazorPages().AddRazorRuntimeCompilation();
             services.AddSignalR();
-            services.AddCors(options =>
-            {
-                options.AddPolicy("Default", policy =>
-                {
-                    policy.WithOrigins(new string[]
-                    {
-                        "https://codedghost.com", "https://www.codedghost.com", "https://api.codedghost.com", "http://localhost:3000"
-                    });
-                });
-            });
 
             services.AddRouting();
         }
@@ -103,9 +104,10 @@ namespace CoreCodedChatbot.Web
             app.UseRouting();
 
             app.UseAuthentication();
-            app.UseAuthorization();
 
-            app.UseCors("Default");
+            app.UseCors();
+
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

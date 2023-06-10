@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CoreCodedChatbot.Web.Controllers
 {
-    [EnableCors("Default")]
+    [EnableCors]
     public class DevelopmentController : Controller
     {
         private readonly IDevOpsApiClient _devOpsApiClient;

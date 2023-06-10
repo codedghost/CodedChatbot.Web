@@ -19,7 +19,7 @@ using Microsoft.Extensions.Logging;
 namespace CoreCodedChatbot.Web.Controllers
 {
     [Authorize]
-    [EnableCors("Default")]
+    [EnableCors]
     public class QuoteController : Controller
     {
         private readonly HttpClient _quoteApiClient;
