@@ -25,7 +25,7 @@ namespace CoreCodedChatbot.Web.Controllers
             ILogger<StatusController> logger)
         {
             _logger = logger;
-            _streamStatusApiClient = HttpClientHelper.BuildClient(configService, secretService, "StreamStatus")
+            _streamStatusApiClient = HttpClientHelper.BuildClient(configService, secretService, "StreamStatus");
         }
 
         [HttpGet]
