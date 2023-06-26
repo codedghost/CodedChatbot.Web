@@ -1,19 +1,31 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
+using CodedGhost.Config;
+using CoreCodedChatbot.ApiClient.DataHelper;
 using CoreCodedChatbot.ApiClient.Interfaces.ApiClients;
 using CoreCodedChatbot.ApiContract.RequestModels.StreamStatus;
+using CoreCodedChatbot.ApiContract.ResponseModels.StreamStatus;
+using CoreCodedChatbot.Config;
+using CoreCodedChatbot.Secrets;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace CoreCodedChatbot.Web.Controllers
 {
     [EnableCors]
     public class StatusController : Controller
     {
-        private readonly IStreamStatusApiClient _streamStatusApiClient;
+        private readonly ILogger<StatusController> _logger;
 
-        public StatusController(IStreamStatusApiClient streamStatusApiClient)
+        private readonly HttpClient _streamStatusApiClient
+            ;
+
+        public StatusController(IConfigService configService, ISecretService secretService,
+            ILogger<StatusController> logger)
         {
-            _streamStatusApiClient = streamStatusApiClient;
+            _logger = logger;
+            _streamStatusApiClient = HttpClientHelper.BuildClient(configService, secretService, "StreamStatus")
         }
 
         [HttpGet]
@@ -25,10 +37,7 @@ namespace CoreCodedChatbot.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Streamer(string broadcaster)
         {
-            var status = await _streamStatusApiClient.GetStreamStatus(new GetStreamStatusRequest
-            {
-                BroadcasterUsername = broadcaster
-            });
+            var status = await _streamStatusApiClient.GetAsync<GetStreamStatusResponse>($"GetStreamStatus?broadcasterUsername={broadcaster}", _logger);
 
             return Ok(status.IsOnline);
         }
