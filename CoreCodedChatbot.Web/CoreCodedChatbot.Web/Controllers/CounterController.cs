@@ -15,7 +15,6 @@ namespace CoreCodedChatbot.Web.Controllers
     public class CounterController : Controller
     {
         private readonly HttpClient _counterHttpClient;
-        private readonly IConfigService _configService;
         private readonly ILogger<CounterController> _logger;
 
         public CounterController(
@@ -24,7 +23,6 @@ namespace CoreCodedChatbot.Web.Controllers
             ILogger<CounterController> logger)
         {
             _counterHttpClient = HttpClientHelper.BuildClient(configService, secretService, "Counters");
-            _configService = configService;
             _logger = logger;
         }
 
