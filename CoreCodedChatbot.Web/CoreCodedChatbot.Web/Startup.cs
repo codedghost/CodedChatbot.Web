@@ -66,7 +66,7 @@ namespace CoreCodedChatbot.Web
                         .WithOrigins("https://codedghost.com", "https://www.codedghost.com",
                             "https://api.codedghost.com", "http://localhost:3000")
                         .WithMethods("GET", "POST", "PUT", "DELETE")
-                        .WithHeaders("Content-Type", "Authorization")
+                        .WithHeaders("Content-Type", "Authorization", "x-requested-with")
                         .AllowCredentials();
                 });
             });
