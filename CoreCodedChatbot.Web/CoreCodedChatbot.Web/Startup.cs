@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Hosting;
 using CoreCodedChatbot.Logging;
 using CoreCodedChatbot.Secrets;
 using CoreCodedChatbot.Web.Interfaces.Services;
-using CoreCodedChatbot.Web.Requirements;
 using CoreCodedChatbot.Web.SignalRHubs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -53,7 +52,7 @@ namespace CoreCodedChatbot.Web
             services.AddAuthorization(config =>
             {
                 config.AddPolicy("Mod",
-                    policy => policy.Requirements.Add(new ModRequirement()));
+                    policy => policy.RequireClaim("IsModerator"));
             });
 
             //services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();

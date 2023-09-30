@@ -70,6 +70,7 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpPut]
+        [Authorize(Policy = "Mod")]
         public async Task<IActionResult> EditQuote()
         {
             return null;
@@ -77,10 +78,13 @@ namespace CoreCodedChatbot.Web.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Policy = "Mod")]
         public async Task<IActionResult> DeleteQuote(int id)
         {
+            var result = await _quoteApiClient.DeleteAsync<bool>($"DeleteQuote?quoteId={id}&username={User.Identity.Name}", _logger);
 
-            return null;
+            if (result) return Ok();
+            return BadRequest();
         }
 
         [HttpPost]

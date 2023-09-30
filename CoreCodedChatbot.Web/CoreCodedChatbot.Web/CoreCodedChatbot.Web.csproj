@@ -58,7 +58,6 @@
 
   <ItemGroup>
     <Folder Include="Components\" />
-    <Folder Include="Requirements\" />
     <Folder Include="ViewModels\Counter\" />
     <Folder Include="wwwroot\scripts\" />
   </ItemGroup>

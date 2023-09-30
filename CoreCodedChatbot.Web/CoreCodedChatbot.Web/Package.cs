@@ -52,17 +52,21 @@ namespace CoreCodedChatbot.Web
                                 await twitchApi.Helix.Moderation.GetModeratorsAsync(configService.Get<string>("ChannelId"),
                                     accessToken: secretService.GetSecret<string>("ChatbotAccessToken")).ConfigureAwait(false);
 
-                            var modClaim = new Claim("IsModerator",
-                                (moderatorResponse.Data.Any(mod => string.Equals(mod.UserName,
-                                     ctx.Principal.Identity.Name, StringComparison.CurrentCultureIgnoreCase)) ||
-                                 string.Equals(ctx.Principal.Identity.Name,
-                                     configService.Get<string>("StreamerChannel"),
-                                     StringComparison.CurrentCultureIgnoreCase))
-                                .ToString());
+                            var isMod = moderatorResponse.Data.Any(mod => string.Equals(mod.UserName,
+                                            ctx.Principal.Identity.Name, StringComparison.CurrentCultureIgnoreCase)) ||
+                                        string.Equals(ctx.Principal.Identity.Name,
+                                            configService.Get<string>("StreamerChannel"),
+                                            StringComparison.CurrentCultureIgnoreCase);
 
-                            var identity = new ClaimsIdentity(new[] { modClaim });
+                            if (isMod)
+                            {
+                                var modClaim = new Claim("IsModerator",
+                                    isMod
+                                        .ToString());
 
-                            ctx.Principal.AddIdentity(identity);
+                                ctx.Principal.Identities.FirstOrDefault().AddClaim(modClaim);
+                            }
+
                             await Task.CompletedTask.ConfigureAwait(false);
                         }
                     };
